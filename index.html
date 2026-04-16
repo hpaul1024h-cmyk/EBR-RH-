@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>200K EBR 개정 검토 시스템</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{
+  --navy:#0d2137;--navy2:#1a3a57;
+  --green-dark:#2E5B2E;--green-mid:#4a7c4a;--green-light:#e8f5e8;
+  --orange:#C0522B;--blue:#1a6fa8;--blue-light:#e8f3fb;
+  --accent:#00b894;--red:#d63031;--yellow-bg:#fffde7;--purple:#6c3483;
+  --bg:#f0f4f8;--card:#fff;--border:#d0dce8;
+  --text:#0d2137;--text2:#4a6680;--text3:#8fa9bf;
+  --shadow:0 2px 8px rgba(13,33,55,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:13px}
+.hidden{display:none!important}
+.btn{font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;padding:6px 14px;border-radius:6px;cursor:pointer;transition:.15s;border:1px solid var(--border);background:#fff;color:var(--text)}
+.btn:hover{background:var(--bg)}
+.btn-primary{background:var(--green-dark);color:#fff;border-color:var(--green-dark)}.btn-primary:hover{background:#245024}
+.btn-blue{background:var(--blue);color:#fff;border-color:var(--blue)}.btn-blue:hover{background:#155d8f}
+.btn-danger{background:var(--red);color:#fff;border-color:var(--red)}
+.btn-ai{background:var(--purple);color:#fff;border:none;font-size:11px;padding:4px 9px;border-radius:5px;cursor:pointer;font-family:'Noto Sans KR',sans-serif}.btn-ai:hover{background:#5b2c7a}
+.btn-sort{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:.15s;white-space:nowrap}
+.btn-sort:hover{background:rgba(255,255,255,.25)}
+.btn-sort-dark{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:.15s;white-space:nowrap}
+.btn-sort-dark:hover{background:var(--bg);border-color:var(--accent);color:var(--accent)}
+.btn-sm{padding:4px 10px;font-size:11px}
+input,textarea,select{font-family:'Noto Sans KR',sans-serif;font-size:12px;border:1px solid var(--border);border-radius:5px;padding:5px 8px;color:var(--text);background:#fff;outline:none;transition:.15s;width:100%}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,184,148,.12)}
+input[readonly],textarea[readonly]{background:#f7f9fb;color:var(--text2);cursor:default}
+textarea{resize:vertical;line-height:1.5}
+label{font-size:11px;font-weight:600;color:var(--text2);display:block;margin-bottom:3px}
+
+/* ══ 오버레이/모달 ══ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center}
+.modal{background:#fff;border-radius:14px;padding:2rem;width:480px;max-width:94vw;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto}
+.modal-wide{width:700px}
+.modal h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:.3rem}
+.modal p{font-size:12px;color:var(--text2);margin-bottom:1rem}
+.modal-btns{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem}
+.pw-error{font-size:12px;color:var(--red);margin-bottom:8px;display:none}
+.form-group{margin-bottom:.75rem}
+
+/* ══ 헤더 ══ */
+header{background:var(--navy);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;border-bottom:2px solid var(--accent);position:sticky;top:0;z-index:200}
+.hdr-logo{display:flex;align-items:center;gap:10px}
+.hdr-mark{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--navy)}
+.hdr-text{font-size:14px;font-weight:600;color:#fff}
+.hdr-sub{font-size:10px;color:rgba(255,255,255,.4);font-family:'IBM Plex Mono',monospace}
+.hdr-right{display:flex;align-items:center;gap:8px}
+.user-chip{font-size:11px;padding:4px 10px;border-radius:12px;font-family:'IBM Plex Mono',monospace}
+.chip-author{background:rgba(0,184,148,.2);color:#00b894;border:1px solid rgba(0,184,148,.3)}
+.chip-reviewer{background:rgba(26,111,168,.2);color:#74b9ff;border:1px solid rgba(26,111,168,.3)}
+.hdr-btn{font-size:11px;padding:5px 12px;border-radius:5px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:.15s}
+.hdr-btn:hover{background:rgba(255,255,255,.15)}
+.save-chip{font-size:10px;padding:3px 8px;border-radius:4px;font-family:'IBM Plex Mono',monospace}
+.save-ok{background:rgba(0,184,148,.15);color:#00b894}
+.save-ing{background:rgba(255,193,7,.15);color:#b8860b}
+.save-err{background:rgba(214,48,49,.15);color:var(--red)}
+
+/* ══ 메인 ══ */
+#main-view{padding:1.5rem}
+.page-hdr{margin-bottom:1.25rem}
+.page-hdr h1{font-size:18px;font-weight:700;color:var(--navy)}
+.page-hdr p{font-size:12px;color:var(--text2);margin-top:3px}
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:1.5rem}
+.schedule-table{width:100%;border-collapse:collapse;min-width:1350px}
+.schedule-table th{padding:7px 8px;text-align:center;font-size:11px;font-weight:600;white-space:nowrap;border:1px solid rgba(255,255,255,.15)}
+.schedule-table td{padding:5px 7px;border:1px solid var(--border);vertical-align:middle;font-size:12px}
+.td-docnum{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--blue);text-align:center;white-space:nowrap}
+.td-input input{border:none;background:transparent;font-size:11px;text-align:center;padding:2px 4px;width:100%;min-width:60px}
+.td-input input:focus{background:#fff;border:1px solid var(--accent);border-radius:3px}
+.reviewer-chip{display:inline-block;padding:2px 5px;border-radius:3px;font-size:10px;background:var(--blue-light);color:var(--blue);margin:1px}
+.btn-write{font-size:10px;padding:3px 8px;border-radius:4px;background:var(--green-dark);color:#fff;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:.15s;display:block;width:100%;margin-bottom:3px}
+.btn-write:hover{background:#245024}
+.btn-write-disabled{opacity:.35;cursor:not-allowed!important;background:#999!important}
+.btn-review{font-size:10px;padding:3px 8px;border-radius:4px;background:var(--blue);color:#fff;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:.15s;display:block;width:100%}
+.btn-review:hover{background:#155d8f}
+/* ══ CC/CAPA ══ */
+.capa-table{width:100%;border-collapse:collapse;font-size:12px}
+.capa-table th{background:var(--navy2);color:#fff;padding:7px 10px;text-align:left;font-weight:500;font-size:11px;border:1px solid rgba(255,255,255,.1)}
+.capa-table td{padding:7px 10px;border:1px solid var(--border);vertical-align:top}
+.capa-table tr:nth-child(even) td{background:#fafbfc}
+.rel-doc-chip{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;background:var(--green-light);color:var(--green-dark);margin:1px;font-family:'IBM Plex Mono',monospace}
+/* ══ 작성하기 ══ */
+#write-view{padding:1.5rem}
+.write-hdr{background:var(--green-dark);border-radius:10px;padding:1.25rem 1.5rem;color:#fff;margin-bottom:1.25rem}
+.write-hdr h2{font-size:15px;font-weight:600;margin-bottom:.5rem}
+.write-meta{display:flex;gap:16px;flex-wrap:wrap}
+.write-meta span{font-size:11px;color:rgba(255,255,255,.55)}
+.write-meta span b{color:#fff;font-weight:500;margin-left:4px}
+.rev-card{background:#fff;border-radius:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:1.25rem;box-shadow:var(--shadow)}
+.rev-card-hdr{background:var(--green-dark);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.4rem}
+.rev-card-hdr h3{font-size:13px;font-weight:600;color:#fff}
+.rev-table{width:100%;border-collapse:collapse;font-size:12px}
+.rev-table th{background:var(--green-mid);color:#fff;padding:7px 10px;text-align:center;font-weight:500;font-size:11px;border:1px solid rgba(255,255,255,.15)}
+.rev-table td{padding:8px 10px;border:1px solid var(--border);vertical-align:top}
+.td-step{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;text-align:center;color:var(--navy);background:#fafbfc;vertical-align:middle}
+.td-before{background:#fff0f0}
+.td-after{background:#f0fff4}
+.td-hint{background:#fff8e8}
+.td-just{background:#f0f4ff}
+.td-capa-ref{background:#fffde7;text-align:center;font-size:11px;font-family:'IBM Plex Mono',monospace;vertical-align:middle}
+/* ══ 검토화면 ══ */
+#review-view{padding:1.5rem}
+.review-hdr{background:var(--navy);border-radius:10px;padding:1.25rem 1.5rem;color:#fff;margin-bottom:1.25rem}
+.review-hdr h2{font-size:15px;font-weight:600;margin-bottom:.5rem}
+.rdoc-meta{display:flex;gap:16px;flex-wrap:wrap}
+.rdoc-meta span{font-size:11px;color:rgba(255,255,255,.5)}
+.rdoc-meta span b{color:#fff;font-weight:500;margin-left:4px}
+.doc-tabs{display:flex;gap:4px;margin-bottom:1.25rem;flex-wrap:wrap}
+.doc-tab{font-size:12px;padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:#fff;color:var(--text2);cursor:pointer;transition:.15s;font-family:'IBM Plex Mono',monospace;position:relative}
+.doc-tab:hover{border-color:var(--blue);color:var(--blue)}
+.doc-tab.active{background:var(--green-dark);color:#fff;border-color:var(--green-dark)}
+.doc-tab.has-comment::after{content:'';width:7px;height:7px;background:var(--orange);border-radius:50%;position:absolute;top:2px;right:2px}
+/* ══ 체크 ══ */
+.check-group{display:flex;flex-direction:column;gap:3px}
+.check-item{display:flex;align-items:center;gap:4px}
+.check-item input[type=checkbox]{width:14px;height:14px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
+.check-item input[type=checkbox]:disabled{cursor:not-allowed;opacity:.4}
+.check-name{font-size:10px;color:var(--text2);white-space:nowrap}
+.check-name.mine{color:var(--green-dark);font-weight:700}
+/* ══ 인라인 댓글 ══ */
+.rev-row-comment-area{background:#f8fbff;border-top:1px dashed var(--border);padding:.6rem .75rem}
+.inline-comments{margin-bottom:.5rem}
+.inline-comment{display:flex;flex-direction:column;gap:2px;padding:.5rem .6rem;background:#fff;border-radius:6px;border-left:3px solid var(--blue);margin-bottom:.4rem}
+.inline-comment.author-comment{border-left-color:var(--green-dark)}
+.ic-meta{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap}
+.ic-author{font-size:11px;font-weight:600;color:var(--navy)}
+.ic-time{font-size:10px;color:var(--text3);font-family:'IBM Plex Mono',monospace}
+.ic-role{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600}
+.ic-role-author{background:#e8f5e8;color:var(--green-dark)}
+.ic-role-reviewer{background:var(--blue-light);color:var(--blue)}
+.ic-text{font-size:12px;color:var(--text);line-height:1.5}
+.ic-actions{display:flex;gap:5px;margin-top:4px}
+.ic-btn{font-size:10px;padding:2px 7px;border-radius:3px;border:1px solid var(--border);background:#fff;cursor:pointer}
+.ic-btn:hover{border-color:var(--blue);color:var(--blue)}
+.ic-btn.del:hover{border-color:var(--red);color:var(--red)}
+.ic-replies{margin-left:1rem;margin-top:.4rem}
+.ic-reply-item{padding:.4rem .6rem;background:#f0f4ff;border-radius:5px;border-left:2px solid var(--accent);margin-bottom:.3rem;font-size:11px;line-height:1.5}
+.ic-reply-input-row{display:none;gap:.4rem;align-items:center;margin-top:.4rem}
+.ic-reply-input-row input{flex:1;font-size:11px}
+.inline-comment-form{display:flex;gap:.4rem;align-items:center;margin-top:.4rem}
+.inline-comment-form input{flex:1;font-size:11px}
+/* ══ 하단 코멘트 ══ */
+.comment-section{background:#fff;border-radius:10px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow);margin-top:1.25rem}
+.comment-section-hdr{background:var(--navy2);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between}
+.comment-section-hdr h3{font-size:13px;font-weight:600;color:#fff}
+.comment-table{width:100%;border-collapse:collapse;font-size:12px}
+.comment-table th{background:#2c3e50;color:rgba(255,255,255,.85);padding:7px 10px;text-align:left;font-weight:500;font-size:11px;border:1px solid rgba(255,255,255,.1)}
+.comment-table td{padding:7px 10px;border:1px solid var(--border);vertical-align:top}
+.comment-table tr:nth-child(even) td{background:#fafbfc}
+.progress-done{background:#e8faf6;color:var(--accent);font-size:10px;padding:2px 7px;border-radius:3px;font-weight:600;display:inline-block}
+.progress-wip{background:var(--yellow-bg);color:#e67e22;border:1px solid #fce08a;font-size:10px;padding:2px 7px;border-radius:3px;font-weight:600;display:inline-block}
+.progress-pending{background:#f5f5f5;color:#999;font-size:10px;padding:2px 7px;border-radius:3px;font-weight:600;display:inline-block}
+.add-comment-form{padding:1rem;border-top:1px solid var(--border);background:#fafbfc}
+.form-row-5{display:grid;grid-template-columns:110px 1fr 100px 140px auto;gap:.5rem;align-items:end}
+.btn-row{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.25rem}
+/* ══ Bulk AI ══ */
+.step-box{background:#f8f9fa;border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1rem}
+.step-box-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:.4rem}
+.step-num{font-size:11px;font-weight:700;color:#fff;background:var(--purple);padding:2px 9px;border-radius:10px}
+.prompt-box{background:#fff;border:1px solid #d7b8f3;border-radius:6px;padding:.75rem;font-size:11px;line-height:1.7;white-space:pre-wrap;font-family:'IBM Plex Mono',monospace;max-height:200px;overflow-y:auto;word-break:break-all;color:var(--text)}
+.btn-copy{font-size:11px;padding:4px 12px;border-radius:5px;border:1px solid var(--purple);background:#fff;color:var(--purple);cursor:pointer;transition:.15s}
+.btn-copy:hover{background:#f8f0ff}
+.btn-copy.copied{background:var(--accent);border-color:var(--accent);color:#fff}
+.parse-ok{background:#e8faf6;border:1px solid #a9dfbf;border-radius:6px;padding:.6rem .75rem;font-size:12px;color:var(--green-dark);margin-top:.5rem;display:none}
+.parse-err{background:#fdeaea;border:1px solid #f1948a;border-radius:6px;padding:.6rem .75rem;font-size:12px;color:var(--red);margin-top:.5rem;display:none}
+/* ══ 토스트 ══ */
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:9px 20px;border-radius:7px;font-size:12px;border-left:3px solid var(--accent);z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<!-- ══ 작성자 로그인 ══ -->
+<div class="overlay hidden" id="pw-modal">
+  <div class="modal">
+    <h2>✏️ 작성자 모드 로그인</h2>
+    <p>이름과 비밀번호를 입력하세요.</p>
+    <div class="form-group"><label>이름</label><input type="text" id="author-name-input" placeholder="예: 허석현" onkeydown="if(event.key==='Enter')document.getElementById('pw-input').focus()"></div>
+    <div class="form-group"><label>비밀번호</label><input type="password" id="pw-input" placeholder="비밀번호" onkeydown="if(event.key==='Enter')checkPW()"></div>
+    <div class="pw-error" id="pw-error">비밀번호가 올바르지 않습니다.</div>
+    <div class="modal-btns"><button class="btn" onclick="closePWModal()">취소</button><button class="btn btn-primary" onclick="checkPW()">로그인</button></div>
+  </div>
+</div>
+
+<!-- ══ 검토자 선택 ══ -->
+<div class="overlay hidden" id="reviewer-modal">
+  <div class="modal">
+    <h2>👤 검토자 선택</h2>
+    <p>본인 이름을 선택하세요.</p>
+    <div id="reviewer-list" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem"></div>
+    <div class="modal-btns"><button class="btn" onclick="document.getElementById('reviewer-modal').classList.add('hidden')">취소</button></div>
+  </div>
+</div>
+
+<!-- ══ Bulk AI ══ -->
+<div class="overlay hidden" id="bulk-ai-modal">
+  <div class="modal modal-wide">
+    <h2>🤖 전체 Justification AI 생성</h2>
+    <p>프롬프트를 복사해서 Copilot에 붙여넣으세요. 답변을 받은 후 STEP 2에 붙여넣으면 각 행에 자동 입력됩니다.</p>
+    <div class="step-box">
+      <div class="step-box-hdr">
+        <span class="step-num">STEP 1</span>
+        <span style="font-size:12px;font-weight:600;color:var(--navy)">프롬프트 복사 → Copilot 붙여넣기</span>
+        <button class="btn-copy" id="copy-prompt-btn" onclick="copyPrompt()">📋 복사</button>
+      </div>
+      <div class="prompt-box" id="bulk-prompt-box"></div>
+    </div>
+    <div class="step-box">
+      <div class="step-box-hdr">
+        <span class="step-num">STEP 2</span>
+        <span style="font-size:12px;font-weight:600;color:var(--navy)">AI 답변 붙여넣기 → 자동 입력</span>
+        <button class="btn btn-ai btn-sm" onclick="parseAndApply()">✓ 자동 입력</button>
+      </div>
+      <textarea id="bulk-ai-result" rows="7" placeholder="[1] Section title was updated...&#10;[2] Step numbers were renumbered..."></textarea>
+      <div class="parse-ok" id="parse-ok-box"></div>
+      <div class="parse-err" id="parse-err-box"></div>
+    </div>
+    <div class="modal-btns"><button class="btn" onclick="document.getElementById('bulk-ai-modal').classList.add('hidden')">닫기</button></div>
+  </div>
+</div>
+
+<!-- ══ 헤더 ══ -->
+<header>
+  <div class="hdr-logo">
+    <div class="hdr-mark">DS</div>
+    <div><div class="hdr-text">200K EBR 개정 검토 시스템</div><div class="hdr-sub">배양 CT-P16 [200K] · CT-P14</div></div>
+  </div>
+  <div class="hdr-right">
+    <span class="save-chip hidden" id="save-chip"></span>
+    <span class="user-chip hidden" id="user-chip"></span>
+    <button class="hdr-btn hidden" id="btn-author-mode" onclick="showPWModal()">✏ 작성자 로그인</button>
+    <button class="hdr-btn hidden" id="btn-logout" onclick="logout()">로그아웃</button>
+    <button class="hdr-btn" onclick="goMain()">메인화면</button>
+    <button class="hdr-btn" onclick="saveToGitHub()">💾 저장</button>
+  </div>
+</header>
+
+<!-- ══ 메인 ══ -->
+<div id="main-view">
+  <div class="page-hdr">
+    <h1>200K(CT-P14) EBR 개정 검토 현황</h1>
+    <p>작성자 모드에서 개정 내용을 작성하고 저장하세요.</p>
+  </div>
+  <div class="table-wrap">
+    <table class="schedule-table">
+      <thead>
+        <tr>
+          <th colspan="4" style="background:var(--green-dark);color:#fff">200K(CT-P14) EBR</th>
+          <th colspan="6" style="background:var(--green-mid);color:#fff">검토 담당자</th>
+          <th rowspan="2" style="background:#4a5568;color:#fff;vertical-align:middle">OOF<br><span style="font-size:9px;opacity:.7">(전체공통)</span></th>
+          <th colspan="4" style="background:var(--orange);color:#fff">Target</th>
+          <th rowspan="2" style="background:#2d3748;color:#fff;vertical-align:middle">작성하기</th>
+          <th rowspan="2" style="background:var(--navy2);color:#fff;vertical-align:middle">검토하기</th>
+        </tr>
+        <tr>
+          <th style="background:var(--green-dark);color:#fff">
+            문서 번호
+            <button class="btn-sort" onclick="sortDocs()" title="문서번호 오름차순 정렬">↕ 정렬</button>
+          </th>
+          <th style="background:var(--green-dark);color:#fff">버전</th>
+          <th style="background:var(--green-dark);color:#fff">Title</th>
+          <th style="background:var(--green-dark);color:#fff">DSS<br>개정담당자</th>
+          <th style="background:var(--green-mid);color:#fff">테스트<br>배치번호</th>
+          <th style="background:var(--green-mid);color:#fff">QA<br>검토담당자</th>
+          <th style="background:var(--green-mid);color:#fff">테스트<br>배치번호</th>
+          <th style="background:var(--green-mid);color:#fff">CC<br>검토담당자</th>
+          <th style="background:var(--green-mid);color:#fff">테스트<br>배치번호</th>
+          <th style="background:var(--green-mid);color:#fff">TO<br>검토담당자</th>
+          <th style="background:var(--orange);color:#fff">검토</th>
+          <th style="background:var(--orange);color:#fff">승인(EBR)</th>
+          <th style="background:var(--orange);color:#fff">승인(EDMS)</th>
+          <th style="background:var(--orange);color:#fff">발효(EBR)</th>
+        </tr>
+      </thead>
+      <tbody id="schedule-tbody"></tbody>
+    </table>
+  </div>
+  <div style="background:#fff;border-radius:10px;border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)">
+    <div style="background:var(--navy2);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.4rem">
+      <span style="font-size:13px;font-weight:600;color:#fff">변경관리 &amp; CAPA 목록</span>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <button class="btn-sort" onclick="sortCapa()" title="CC/CAPA 번호 오름차순 정렬">↕ 정렬</button>
+        <button class="btn btn-sm btn-primary author-only hidden" onclick="addCapaRow()">+ 항목 추가</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="capa-table">
+        <thead><tr>
+          <th style="width:175px">변경관리 &amp; CAPA No.</th>
+          <th>Summary / Description</th>
+          <th style="width:330px">관련 문서</th>
+          <th class="author-only hidden" style="width:55px">삭제</th>
+        </tr></thead>
+        <tbody id="capa-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 작성하기 ══ -->
+<div id="write-view" class="hidden">
+  <div class="write-hdr">
+    <h2 id="wv-title">개정 내용 작성</h2>
+    <div class="write-meta" id="wv-meta"></div>
+  </div>
+  <div class="doc-tabs" id="write-doc-tabs"></div>
+  <div class="rev-card">
+    <div class="rev-card-hdr">
+      <h3>개정 내용 입력 (Revision History)</h3>
+      <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+        <button class="btn-ai" onclick="openBulkAIModal()">🤖 전체 AI 생성</button>
+        <span id="wv-capa-badge" style="font-size:11px;background:rgba(255,255,255,.15);color:#fff;padding:3px 10px;border-radius:4px;font-family:'IBM Plex Mono',monospace"></span>
+      </div>
+    </div>
+    <div style="padding:1rem">
+      <div id="wv-capa-bar" style="background:var(--yellow-bg);border:1px solid #fce08a;border-radius:6px;padding:.6rem 1rem;margin-bottom:1rem;font-size:11px;color:var(--text2)"></div>
+      <div style="overflow-x:auto">
+        <table class="rev-table">
+          <thead><tr>
+            <th style="width:100px">
+              EBR Step No.
+              <button class="btn-sort" onclick="sortRevRows()" title="Step No. 오름차순 정렬" style="display:block;margin:3px auto 0">↕ 정렬</button>
+            </th>
+            <th style="width:175px">Before Change</th>
+            <th style="width:175px">After Change</th>
+            <th style="width:145px;background:#fff0d0;color:#7a4f00">간단한 RH 작성<br><span style="font-size:9px;opacity:.7">(AI 힌트용)</span></th>
+            <th style="width:55px;background:#e8d5f5;color:#4a0080">AI</th>
+            <th>Justification</th>
+            <th style="width:115px">변경관리 및 CAPA</th>
+            <th style="width:65px">작성자</th>
+            <th style="width:45px">삭제</th>
+          </tr></thead>
+          <tbody id="write-rev-tbody"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-sm btn-primary" onclick="addRevRow()" style="margin-top:.75rem">+ 행 추가</button>
+    </div>
+  </div>
+  <div class="btn-row">
+    <button class="btn" onclick="goMain()">← 메인으로</button>
+    <button class="btn btn-primary" onclick="saveWriteAndGoMain()">저장 후 메인으로</button>
+  </div>
+</div>
+
+<!-- ══ 검토하기 ══ -->
+<div id="review-view" class="hidden">
+  <div class="review-hdr">
+    <h2 id="rv-title">문서 검토</h2>
+    <div class="rdoc-meta" id="rv-meta"></div>
+  </div>
+  <div class="doc-tabs" id="review-doc-tabs"></div>
+  <div class="rev-card">
+    <div class="rev-card-hdr">
+      <h3>개정 내용 확인 및 검토</h3>
+      <span id="rv-capa-badge" style="font-size:11px;background:rgba(255,255,255,.15);color:#fff;padding:3px 10px;border-radius:4px;font-family:'IBM Plex Mono',monospace"></span>
+    </div>
+    <div style="padding:1rem">
+      <div id="rv-capa-bar" style="background:var(--yellow-bg);border:1px solid #fce08a;border-radius:6px;padding:.6rem 1rem;margin-bottom:1rem;font-size:11px;color:var(--text2)"></div>
+      <div style="overflow-x:auto">
+        <table class="rev-table">
+          <thead><tr>
+            <th style="width:80px">EBR Step No.</th>
+            <th style="width:195px">Before Change</th>
+            <th style="width:195px">After Change</th>
+            <th>Justification</th>
+            <th style="width:115px">변경관리 및 CAPA</th>
+            <th style="width:65px">작성자</th>
+            <th style="width:130px">검토 확인</th>
+          </tr></thead>
+          <tbody id="rv-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="comment-section">
+    <div class="comment-section-hdr">
+      <h3>▼▼▼ 추가 코멘트</h3>
+      <span id="comment-count-badge" style="font-size:11px;background:rgba(255,255,255,.15);color:#fff;padding:3px 8px;border-radius:4px">0개</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="comment-table">
+        <thead><tr>
+          <th style="width:90px">EBR Step No.</th>
+          <th>코멘트</th>
+          <th style="width:85px">요청자</th>
+          <th style="width:130px">반영된 테스트 배치번호</th>
+          <th style="width:75px">진행상황</th>
+          <th style="width:45px">삭제</th>
+        </tr></thead>
+        <tbody id="comment-tbody"></tbody>
+      </table>
+    </div>
+    <div class="add-comment-form">
+      <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:.5rem">새 코멘트 추가</div>
+      <div class="form-row-5">
+        <div><label>Step No.</label><input type="text" id="new-step" placeholder="2.3.1"></div>
+        <div><label>코멘트 내용</label><input type="text" id="new-comment-text" placeholder="코멘트를 입력하세요..."></div>
+        <div><label>요청자</label><input type="text" id="new-requester" readonly></div>
+        <div><label>배치번호</label><input type="text" id="new-batch" placeholder="배치번호" class="author-only-input" readonly></div>
+        <div style="padding-top:16px"><button class="btn btn-blue btn-sm" onclick="addComment()">등록</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row"><button class="btn" onclick="goMain()">← 메인으로</button></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ════ GitHub 설정 ════ */
+const GH_OWNER  = 'hpaul1024h-cmyk';
+const GH_REPO   = 'EBR-RH-';
+const GH_BRANCH = 'main';
+const GH_TOKEN  = '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';
+const GH_FILE   = 'data.json';
+const AUTHOR_PW = 'ebr2025!';
+
+/* ════ 초기 메타 데이터 ════ */
+const INIT_DOCS = [
+  {doc:'200K-0002',ver:'4.0',title:'[200K] Cell Expansion in 120 L Bioreactor(s)',dss:'허석현',reviewers:{qa:['유상민'],cc:['김아영'],to:['신나라']},targetDate:'5//7'},
+  {doc:'200K-0005',ver:'4.0',title:'[200K] Harvest and Recovery',dss:'허석현',reviewers:{qa:['정웅민'],cc:['서지욱','조탁현'],to:['조민']},targetDate:'05월 14일'},
+  {doc:'200K-1008',ver:'4.0',title:'[200K] 2 M NaOH Stock Solution in V-1120 (920 kg)',dss:'허석현',reviewers:{qa:['성유잔'],cc:['이현중','김효담'],to:['조민']},targetDate:'05월 21일'},
+  {doc:'200K-1009',ver:'4.0',title:'[200K] 2M NaOH Stock Solution (300 kg)',dss:'허석현',reviewers:{qa:['성유잔'],cc:['이현중','김효담'],to:['조민']},targetDate:'05월 28일'},
+  {doc:'200K-0004',ver:'6.0',title:'[200K] Production in 15000L Bioreactor(s)',dss:'허석현',reviewers:{qa:['정웅민'],cc:['서지욱','조탁현'],to:['조민']},targetDate:'06월 04일'},
+  {doc:'200K-1001',ver:'4.0',title:'[200K] Growth Medium (30kg)',dss:'허석현',reviewers:{qa:['정수연'],cc:['이채영'],to:['조민']},targetDate:'06월 11일'},
+];
+const INIT_CAPA = [
+  {no:'CC2-2025-255 (PR86985)',desc:'[Addendum of CC2-2024-619] Addition of FIT method using 30inchx6 round housing by using Reference tank',relDocs:['200K-0004']},
+  {no:'CC2-2025-773 (PR93897)\nCC2-2025-1333 (PR100519)',desc:'Change of product name and concentration specification for 10% ADCF Antifoam Solution (MSP1574, MSP3059)\n[Addendum of CC2-2025-773] Product name change correction of 10% ADCF Antifoam Solution',relDocs:['200K-0004']},
+  {no:'CC2-2025-1238 (PR99404)',desc:'Introduction of new sampling bag (MicroDigital) for DS manufacturing process',relDocs:['200K-0002','200K-0003','200K-0004']},
+  {no:'CC2-2026-001 (PR106881)',desc:'Dualization of chemical materials used in DS manufacturing with Kirsch pharma as an additional supplier.',relDocs:['200K-1004','200K-1007']},
+  {no:'CC2-2026-051 (PR107551)',desc:'Permanent Change of Production Lot Size, Media Fill Volume, Bottom Aeration in 200K USP',relDocs:['200K-0004','200K-1004']},
+  {no:'CC2-2026-024 (PR107255)',desc:'[Addendum of CC2-2025-1297] Permanent Change of Harvest Depth Filter Usage Type in 200K Upstream Process',relDocs:['200K-0005']},
+];
+
+/* ════ 상태 ════ */
+let S = null;
+let ghFileSHA = null;
+let isAuthor = false;
+let currentView = 'main';
+
+function initS(saved){
+  if(saved){
+    if(!saved.docsMeta) saved.docsMeta = JSON.parse(JSON.stringify(INIT_DOCS));
+    if(!saved.capaList) saved.capaList = JSON.parse(JSON.stringify(INIT_CAPA));
+    saved.docsMeta.forEach(m=>{
+      if(!saved.docs[m.doc]) saved.docs[m.doc]={schedule:{testBatch1:'',testBatch2:'',testBatch3:'',review:'',approveEBR:'',approveEDMS:'',release:''},revRows:[],comments:[],checks:{}};
+    });
+    return saved;
+  }
+  const docs={};
+  INIT_DOCS.forEach(m=>{ docs[m.doc]={schedule:{testBatch1:'',testBatch2:'',testBatch3:'',review:'',approveEBR:'',approveEDMS:'',release:''},revRows:[],comments:[],checks:{}}; });
+  return {docs, docsMeta:JSON.parse(JSON.stringify(INIT_DOCS)), capaList:JSON.parse(JSON.stringify(INIT_CAPA)),
+    globalOOF:'06월 03일', mode:'viewer', currentUser:'', currentDoc:INIT_DOCS[0].doc, lastSaved:'', lastSavedBy:''};
+}
+
+/* ════ 유틸 ════ */
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function nowStr(){const n=new Date();return`${n.getMonth()+1}/${n.getDate()} ${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`;}
+function toISO(){return new Date().toISOString().slice(0,16).replace('T',' ');}
+function toast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',d);}
+function setSaveChip(cls,msg){const el=document.getElementById('save-chip');el.className='save-chip '+cls;el.textContent=msg;el.classList.remove('hidden');}
+function canEdit(author){return S.currentUser&&S.currentUser===author;}
+function getAllReviewers(){return[...new Set(S.docsMeta.flatMap(m=>[...m.reviewers.qa,...m.reviewers.cc,...m.reviewers.to]))];}
+
+/* ════════════════════════
+   ★ 정렬 함수들
+════════════════════════ */
+
+/* 문서번호 정렬: 200K- 뒤 숫자만 추출해서 오름차순 */
+function parseDocNum(docStr){
+  const m=docStr.match(/(\d+)$/);
+  return m?parseInt(m[1]):0;
+}
+function sortDocs(){
+  S.docsMeta.sort((a,b)=>parseDocNum(a.doc)-parseDocNum(b.doc));
+  renderScheduleTable();
+  toast('📋 문서번호 오름차순 정렬 완료');
+}
+
+/* CC/CAPA 정렬: CC2-YYYY-NNN 에서 연도→번호 순으로 오름차순 */
+function parseCCNum(noStr){
+  // 첫 번째 CC 번호만 기준으로 (줄바꿈 있을 경우)
+  const first = noStr.split('\n')[0].trim();
+  const m = first.match(/CC\d+-(\d{4})-(\d+)/);
+  if(m) return parseInt(m[1])*10000+parseInt(m[2]);
+  // CAPA로 시작하면 CC 뒤에 배치
+  const p = first.match(/CAPA.*?(\d+)/);
+  if(p) return 99999999+parseInt(p[1]);
+  return 99999999;
+}
+function sortCapa(){
+  S.capaList.sort((a,b)=>parseCCNum(a.no)-parseCCNum(b.no));
+  renderCapaTable();
+  toast('📋 CC/CAPA 번호 오름차순 정렬 완료');
+}
+
+/* EBR Step No. 정렬: 1.1 → 1.2 → 2.1 오름차순 */
+function parseStepNum(stepStr){
+  if(!stepStr) return [9999,9999,9999];
+  return stepStr.trim().split('.').map(n=>{const v=parseInt(n);return isNaN(v)?9999:v;});
+}
+function compareStep(a,b){
+  const pa=parseStepNum(a.step), pb=parseStepNum(b.step);
+  for(let i=0;i<Math.max(pa.length,pb.length);i++){
+    const va=pa[i]||0, vb=pb[i]||0;
+    if(va!==vb) return va-vb;
+  }
+  return 0;
+}
+function sortRevRows(){
+  if(!S.currentDoc) return;
+  S.docs[S.currentDoc].revRows.sort(compareStep);
+  renderWriteRevTable(S.currentDoc);
+  toast('📋 Step No. 오름차순 정렬 완료');
+}
+
+/* ════ GitHub API ════ */
+async function loadFromGitHub(){
+  setSaveChip('save-ing','⏳ 불러오는 중...');
+  try{
+    const url=`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`;
+    const res=await fetch(url,{headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'}});
+    if(res.status===404){
+      S=initS(null); setSaveChip('save-ok','✓ 새 파일'); toast('새 데이터로 시작합니다.');
+    } else if(res.ok){
+      const json=await res.json(); ghFileSHA=json.sha;
+      const decoded=JSON.parse(atob(json.content.replace(/\n/g,'')));
+      S=initS(decoded); setSaveChip('save-ok',`✓ ${S.lastSaved||'로드완료'}`);
+      if(S.lastSavedBy) toast(`마지막 저장: ${S.lastSavedBy} (${S.lastSaved})`);
+    } else throw new Error(res.status);
+  }catch(e){
+    S=initS(null); setSaveChip('save-err','⚠ 오프라인'); toast('GitHub 연결 실패 — 오프라인 모드',3000);
+  }
+  renderMain(); applyMode();
+}
+
+async function saveToGitHub(){
+  if(!S.currentUser){toast('먼저 로그인하세요.');return;}
+  setSaveChip('save-ing','⏳ 저장 중...');
+  S.lastSaved=toISO(); S.lastSavedBy=S.currentUser;
+  const content=btoa(unescape(encodeURIComponent(JSON.stringify(S,null,2))));
+  const body={message:`update: ${S.currentUser} @ ${S.lastSaved}`,content,branch:GH_BRANCH};
+  if(ghFileSHA) body.sha=ghFileSHA;
+  try{
+    const res=await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`,
+      {method:'PUT',headers:{'Authorization':`token ${GH_TOKEN}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
+    if(res.ok){
+      const json=await res.json(); ghFileSHA=json.content.sha;
+      setSaveChip('save-ok',`✓ ${S.lastSaved}`); toast(`💾 저장 완료 (${S.lastSavedBy})`);
+    } else if(res.status===409){
+      toast('⚠ 충돌: 다른 사람이 먼저 저장했습니다. 새로고침 후 다시 시도하세요.',4000);
+      setSaveChip('save-err','⚠ 충돌');
+    } else { const e=await res.json(); throw new Error(e.message); }
+  }catch(e){ setSaveChip('save-err','⚠ 저장실패'); toast('저장 실패: '+e.message,3000); }
+}
+
+/* ════ 모드/인증 ════ */
+function showPWModal(){document.getElementById('pw-modal').classList.remove('hidden');setTimeout(()=>document.getElementById('author-name-input').focus(),100);}
+function closePWModal(){document.getElementById('pw-modal').classList.add('hidden');document.getElementById('pw-input').value='';document.getElementById('pw-error').style.display='none';}
+function checkPW(){
+  const name=document.getElementById('author-name-input').value.trim();
+  const pw=document.getElementById('pw-input').value;
+  if(!name){toast('이름을 입력하세요.');return;}
+  if(pw!==AUTHOR_PW){document.getElementById('pw-error').style.display='block';document.getElementById('pw-input').value='';return;}
+  isAuthor=true; S.mode='author'; S.currentUser=name;
+  closePWModal(); applyMode(); toast(`✏ ${name}님, 작성자 모드입니다.`);
+  if(currentView==='write') renderWriteView(S.currentDoc);
+  else if(currentView==='review') renderReviewView(S.currentDoc);
+  else renderMain();
+}
+function logout(){isAuthor=false;S.mode='viewer';S.currentUser='';applyMode();toast('로그아웃');goMain();}
+function applyMode(){
+  document.getElementById('btn-author-mode').classList.toggle('hidden',isAuthor||!!S.currentUser);
+  document.getElementById('btn-logout').classList.toggle('hidden',!S.currentUser);
+  const chip=document.getElementById('user-chip');
+  if(S.currentUser){chip.textContent=isAuthor?`✏ ${S.currentUser}`:`👤 ${S.currentUser}`;chip.className=`user-chip ${isAuthor?'chip-author':'chip-reviewer'}`;chip.classList.remove('hidden');}
+  else chip.classList.add('hidden');
+  document.querySelectorAll('.author-only').forEach(el=>el.classList.toggle('hidden',!isAuthor));
+  document.querySelectorAll('.author-only-input').forEach(el=>el.readOnly=!isAuthor);
+  document.querySelectorAll('.schedule-input').forEach(el=>el.readOnly=!isAuthor);
+}
+
+/* ════ 메인 ════ */
+function goMain(){
+  currentView='main';
+  document.getElementById('main-view').classList.remove('hidden');
+  document.getElementById('write-view').classList.add('hidden');
+  document.getElementById('review-view').classList.add('hidden');
+  renderMain();
+}
+function renderMain(){renderScheduleTable();renderCapaTable();applyMode();}
+
+function renderScheduleTable(){
+  const tbody=document.getElementById('schedule-tbody');
+  const oofCell=(idx)=>idx===0
+    ?`<td class="td-input" rowspan="${S.docsMeta.length}" style="vertical-align:middle;text-align:center">${isAuthor?`<input class="schedule-input" value="${esc(S.globalOOF)}" oninput="S.globalOOF=this.value" style="min-width:75px">`:esc(S.globalOOF)}</td>`:'';
+  tbody.innerHTML=S.docsMeta.map((m,idx)=>{
+    const d=S.docs[m.doc]||{schedule:{},revRows:[],comments:[],checks:{}};
+    const sc=d.schedule||{};
+    const hasRows=d.revRows.length>0;
+    return `<tr>
+      <td class="td-docnum">${m.doc}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;text-align:center;color:var(--text2)">${m.ver}</td>
+      <td style="font-size:12px;min-width:195px">${m.title}</td>
+      <td style="text-align:center;font-size:12px;font-weight:500">${m.dss}</td>
+      <td class="td-input"><input class="schedule-input" value="${esc(sc.testBatch1||'')}" oninput="setSched('${m.doc}','testBatch1',this.value)" placeholder="배치번호" readonly></td>
+      <td style="text-align:center">${m.reviewers.qa.map(r=>`<span class="reviewer-chip">${r}</span>`).join('')}</td>
+      <td class="td-input"><input class="schedule-input" value="${esc(sc.testBatch2||'')}" oninput="setSched('${m.doc}','testBatch2',this.value)" placeholder="배치번호" readonly></td>
+      <td style="text-align:center">${m.reviewers.cc.map(r=>`<span class="reviewer-chip" style="background:var(--green-light);color:var(--green-dark)">${r}</span>`).join('')}</td>
+      <td class="td-input"><input class="schedule-input" value="${esc(sc.testBatch3||'')}" oninput="setSched('${m.doc}','testBatch3',this.value)" placeholder="배치번호" readonly></td>
+      <td style="text-align:center">${m.reviewers.to.map(r=>`<span class="reviewer-chip" style="background:#fff0e0;color:#c0522b">${r}</span>`).join('')}</td>
+      ${oofCell(idx)}
+      <td class="td-input"><input class="schedule-input" value="${esc(sc.review||m.targetDate)}" oninput="setSched('${m.doc}','review',this.value)" placeholder="날짜" readonly></td>
+      <td class="td-input"><input class="schedule-input" value="${esc(sc.approveEBR||'')}" oninput="setSched('${m.doc}','approveEBR',this.value)" placeholder="날짜" readonly></td>
+      <td class="td-input"><input class="schedule-input" value="${esc(sc.approveEDMS||'')}" oninput="setSched('${m.doc}','approveEDMS',this.value)" placeholder="날짜" readonly></td>
+      <td class="td-input"><input class="schedule-input" value="${esc(sc.release||'')}" oninput="setSched('${m.doc}','release',this.value)" placeholder="날짜" readonly></td>
+      <td style="text-align:center;padding:4px 6px">
+        <button class="btn-write${isAuthor?'':' btn-write-disabled'}" onclick="${isAuthor?`openWriteDoc('${m.doc}')`:''}">${hasRows?`✓ 작성됨(${d.revRows.length})`:'✏ 작성하기'}</button>
+      </td>
+      <td style="text-align:center;padding:4px 6px">
+        <button class="btn-review" onclick="openReviewerModal('${m.doc}')">검토하기</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+function setSched(docId,f,v){S.docs[docId].schedule[f]=v;}
+
+function renderCapaTable(){
+  document.getElementById('capa-tbody').innerHTML=S.capaList.map((c,i)=>`
+    <tr>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--blue);white-space:pre-line">${isAuthor
+        ?`<input value="${esc(c.no)}" oninput="S.capaList[${i}].no=this.value" style="font-family:'IBM Plex Mono',monospace;font-size:11px;border:none;background:transparent;width:100%">`
+        :esc(c.no)}</td>
+      <td style="font-size:12px;line-height:1.5;white-space:pre-line">${isAuthor
+        ?`<textarea oninput="S.capaList[${i}].desc=this.value" style="min-height:40px;font-size:12px">${esc(c.desc)}</textarea>`
+        :esc(c.desc)}</td>
+      <td>${c.relDocs.map((d,di)=>`<span class="rel-doc-chip">${d}${isAuthor?`<span onclick="removeRelDoc(${i},${di})" style="cursor:pointer;margin-left:3px;opacity:.6">✕</span>`:''}</span>`).join('')}
+        ${isAuthor?`<input placeholder="추가" onkeydown="if(event.key==='Enter'){addRelDoc(${i},this.value);this.value=''}" style="width:90px;font-size:11px;display:inline-block;margin-top:3px">`:''}</td>
+      <td class="author-only hidden" style="text-align:center"><button class="btn btn-sm btn-danger" onclick="removeCapaRow(${i})">삭제</button></td>
+    </tr>`).join('');
+}
+function addRelDoc(i,v){if(v.trim()){S.capaList[i].relDocs.push(v.trim());renderCapaTable();}}
+function removeRelDoc(i,di){S.capaList[i].relDocs.splice(di,1);renderCapaTable();}
+function addCapaRow(){S.capaList.push({no:'',desc:'',relDocs:[]});renderCapaTable();}
+function removeCapaRow(i){if(confirm('삭제?')){S.capaList.splice(i,1);renderCapaTable();}}
+
+/* ════ 작성하기 ════ */
+function openWriteDoc(docId){
+  if(!isAuthor){toast('작성자 모드에서만 사용 가능합니다.');return;}
+  S.currentDoc=docId; currentView='write';
+  document.getElementById('main-view').classList.add('hidden');
+  document.getElementById('write-view').classList.remove('hidden');
+  document.getElementById('review-view').classList.add('hidden');
+  renderWriteView(docId);
+}
+function renderWriteView(docId){
+  const m=S.docsMeta.find(x=>x.doc===docId);
+  document.getElementById('wv-title').textContent=m.title;
+  document.getElementById('wv-meta').innerHTML=`<span>문서번호<b>${m.doc}</b></span><span>버전<b>v${m.ver}</b></span><span>작성자<b>${S.currentUser}</b></span>`;
+  document.getElementById('write-doc-tabs').innerHTML=S.docsMeta.map(mm=>
+    `<button class="doc-tab ${mm.doc===docId?'active':''}" onclick="openWriteDoc('${mm.doc}')">${mm.doc}</button>`).join('');
+  const relCapas=S.capaList.filter(c=>c.relDocs.includes(docId));
+  document.getElementById('wv-capa-badge').textContent=`CC/CAPA ${relCapas.length}건`;
+  document.getElementById('wv-capa-bar').innerHTML=relCapas.length>0
+    ?relCapas.map(c=>`<span style="font-weight:600;margin-right:8px">${c.no.split('\n')[0]}</span>`).join('')
+    :'<span style="color:#999">관련 CC/CAPA 없음 (N/A)</span>';
+  renderWriteRevTable(docId);
+}
+function renderWriteRevTable(docId){
+  const rows=S.docs[docId].revRows;
+  const tbody=document.getElementById('write-rev-tbody');
+  if(!rows.length){tbody.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:var(--text3)">아래 버튼으로 개정 항목을 추가하세요.</td></tr>`;return;}
+  tbody.innerHTML=rows.map((r,i)=>{
+    const mine=canEdit(r.author);
+    const stepCell=mine?`<input value="${esc(r.step||'')}" oninput="setRevRow('${docId}',${i},'step',this.value)" style="width:75px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px">`:esc(r.step||'');
+    const beforeCell=mine?`<textarea oninput="setRevRow('${docId}',${i},'before',this.value)" style="min-height:55px;font-size:12px">${esc(r.before||'')}</textarea>`:`<div style="font-size:12px;line-height:1.5;padding:2px">${esc(r.before||'N/A')}</div>`;
+    const afterCell=mine?`<textarea oninput="setRevRow('${docId}',${i},'after',this.value)" style="min-height:55px;font-size:12px">${esc(r.after||'')}</textarea>`:`<div style="font-size:12px;line-height:1.5;padding:2px">${esc(r.after||'')}</div>`;
+    const hintCell=mine?`<textarea oninput="setRevRow('${docId}',${i},'hint',this.value)" style="min-height:55px;font-size:11px" placeholder="작성 의도 메모">${esc(r.hint||'')}</textarea>`:`<div style="font-size:11px;padding:2px;color:var(--text2)">${esc(r.hint||'')}</div>`;
+    const justCell=mine?`<textarea oninput="setRevRow('${docId}',${i},'just',this.value)" style="min-height:55px;font-size:12px">${esc(r.just||'')}</textarea>`:`<div style="font-size:11px;line-height:1.5;padding:2px;color:var(--text2)">${esc(r.just||'')}</div>`;
+    const capaCell=mine?`<input value="${esc(r.capaRef||'')}" oninput="setRevRow('${docId}',${i},'capaRef',this.value)" style="font-size:11px;text-align:center">`:esc(r.capaRef||'');
+    const aiBtn=mine?`<button class="btn-ai" onclick="openBulkAIModal(${i})">🤖</button>`:`<span style="font-size:10px;color:var(--text3)">-</span>`;
+    const delBtn=mine?`<button class="btn btn-sm btn-danger" onclick="removeRevRow('${docId}',${i})">✕</button>`:`<span style="font-size:10px;color:var(--text3)">-</span>`;
+    return `<tr>
+      <td class="td-step">${stepCell}</td>
+      <td class="td-before">${beforeCell}</td>
+      <td class="td-after">${afterCell}</td>
+      <td class="td-hint">${hintCell}</td>
+      <td style="text-align:center;vertical-align:middle;background:#f5e8ff">${aiBtn}</td>
+      <td class="td-just">${justCell}</td>
+      <td class="td-capa-ref">${capaCell}</td>
+      <td style="text-align:center;font-size:11px;color:var(--text2);background:#fafbfc;vertical-align:middle">${esc(r.author||'')}</td>
+      <td style="text-align:center;background:#fafbfc;vertical-align:middle">${delBtn}</td>
+    </tr>`;
+  }).join('');
+}
+function setRevRow(docId,i,f,v){S.docs[docId].revRows[i][f]=v;}
+function addRevRow(){
+  S.docs[S.currentDoc].revRows.push({step:'',before:'',after:'',hint:'',just:'',capaRef:'',author:S.currentUser,comments:[]});
+  renderWriteRevTable(S.currentDoc);
+}
+function removeRevRow(docId,i){S.docs[docId].revRows.splice(i,1);renderWriteRevTable(docId);}
+function saveWriteAndGoMain(){toast('저장되었습니다.');goMain();}
+
+/* ════ Bulk AI ════ */
+function openBulkAIModal(){
+  const docId=S.currentDoc; const rows=S.docs[docId].revRows;
+  if(!rows.length){toast('먼저 행을 추가하세요.');return;}
+  const rowLines=rows.map((r,i)=>{
+    const before=(r.before||'N/A').trim(); const after=(r.after||'').trim()||'N/A'; const hint=(r.hint||'').trim();
+    return `[${i+1}]\n  Step No.: ${r.step||'N/A'}\n  Before Change: ${before}\n  After Change: ${after}${hint?`\n  Author's note: ${hint}`:''}`;
+  }).join('\n\n');
+  const prompt=`You are a pharmaceutical documentation specialist writing Justification fields for an EBR revision history.\n\nBelow are ${rows.length} revision item(s). For each item, write a concise, professional Justification in English (1-3 sentences).\n\nRules:\n- Use formal GMP/pharmaceutical documentation language\n- Be specific and factual\n- Use the "Author's note" as context when provided\n- Output MUST follow this exact format:\n[1] <justification text>\n[2] <justification text>\n...\n[${rows.length}] <justification text>\n\nRevision items:\n${rowLines}`;
+  document.getElementById('bulk-prompt-box').textContent=prompt;
+  document.getElementById('bulk-ai-result').value='';
+  document.getElementById('parse-ok-box').style.display='none';
+  document.getElementById('parse-err-box').style.display='none';
+  document.getElementById('copy-prompt-btn').textContent='📋 복사';
+  document.getElementById('copy-prompt-btn').classList.remove('copied');
+  document.getElementById('bulk-ai-modal').classList.remove('hidden');
+}
+function copyPrompt(){
+  const text=document.getElementById('bulk-prompt-box').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById('copy-prompt-btn');btn.textContent='✓ 복사됨!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='📋 복사';btn.classList.remove('copied');},2000);
+  }).catch(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('📋 복사되었습니다!');});
+}
+function parseAndApply(){
+  const docId=S.currentDoc; const rows=S.docs[docId].revRows;
+  const raw=document.getElementById('bulk-ai-result').value.trim();
+  const okBox=document.getElementById('parse-ok-box'); const errBox=document.getElementById('parse-err-box');
+  okBox.style.display='none'; errBox.style.display='none';
+  if(!raw){toast('AI 답변을 먼저 붙여넣으세요.');return;}
+  const parsed={}; const regex=/\[(\d+)\]\s*([\s\S]*?)(?=\[\d+\]|$)/g; let m;
+  while((m=regex.exec(raw))!==null){const idx=parseInt(m[1])-1;const text=m[2].trim();if(text) parsed[idx]=text;}
+  const cnt=Object.keys(parsed).length;
+  if(!cnt){errBox.textContent='⚠ 파싱 실패: [1] ... [2] ... 형식인지 확인해주세요.';errBox.style.display='block';return;}
+  let applied=0,skipped=0;
+  Object.entries(parsed).forEach(([idxStr,text])=>{
+    const idx=parseInt(idxStr);
+    if(idx>=0&&idx<rows.length){if(canEdit(rows[idx].author)){rows[idx].just=text;applied++;}else skipped++;}
+  });
+  renderWriteRevTable(docId);
+  document.getElementById('bulk-ai-modal').classList.add('hidden');
+  let msg=`✓ ${applied}개 행에 Justification 입력 완료`;
+  if(skipped>0) msg+=` (${skipped}개 타인 작성 행 제외)`;
+  if(cnt<rows.length) msg+=` ⚠ ${rows.length-cnt}개 누락됨`;
+  toast(msg,3000);
+}
+
+/* ════ 검토자 모달 ════ */
+function openReviewerModal(docId){
+  S.currentDoc=docId;
+  document.getElementById('reviewer-list').innerHTML=getAllReviewers().map(r=>
+    `<button class="btn btn-blue" style="font-size:13px;padding:8px 16px" onclick="enterAsReviewer('${r}','${docId}')">${r}</button>`
+  ).join('')+`<button class="btn" style="font-size:13px;padding:8px 16px" onclick="enterAsReviewer('__custom__','${docId}')">기타(직접입력)</button>`;
+  document.getElementById('reviewer-modal').classList.remove('hidden');
+}
+function enterAsReviewer(name,docId){
+  if(name==='__custom__'){const n=prompt('이름을 입력하세요:');if(!n)return;name=n.trim();}
+  S.currentUser=name; isAuthor=false; S.mode='viewer';
+  document.getElementById('reviewer-modal').classList.add('hidden');
+  applyMode(); document.getElementById('new-requester').value=name;
+  openReviewDoc(docId);
+}
+
+/* ════ 검토화면 ════ */
+function openReviewDoc(docId){
+  S.currentDoc=docId; currentView='review';
+  document.getElementById('main-view').classList.add('hidden');
+  document.getElementById('write-view').classList.add('hidden');
+  document.getElementById('review-view').classList.remove('hidden');
+  renderReviewView(docId);
+}
+function renderReviewView(docId){
+  const m=S.docsMeta.find(x=>x.doc===docId);
+  document.getElementById('rv-title').textContent=m.title;
+  document.getElementById('rv-meta').innerHTML=`<span>문서번호<b>${m.doc}</b></span><span>버전<b>v${m.ver}</b></span><span>검토자<b>${S.currentUser||'-'}</b></span>`;
+  document.getElementById('review-doc-tabs').innerHTML=S.docsMeta.map(mm=>{
+    const hasC=S.docs[mm.doc]&&(S.docs[mm.doc].comments.length>0||S.docs[mm.doc].revRows.some(r=>(r.comments||[]).length>0));
+    return `<button class="doc-tab ${mm.doc===docId?'active':''} ${hasC?'has-comment':''}" onclick="openReviewDoc('${mm.doc}')">${mm.doc}</button>`;
+  }).join('');
+  const relCapas=S.capaList.filter(c=>c.relDocs.includes(docId));
+  document.getElementById('rv-capa-badge').textContent=`CC/CAPA ${relCapas.length}건`;
+  document.getElementById('rv-capa-bar').innerHTML=relCapas.length>0
+    ?relCapas.map(c=>`<span style="font-weight:600;margin-right:8px">${c.no.split('\n')[0]}</span>`).join('')
+    :'<span style="color:#999">관련 CC/CAPA 없음 (N/A)</span>';
+  renderReviewRevTable(docId); renderCommentTable(docId); applyMode();
+}
+
+function renderReviewRevTable(docId){
+  const rows=S.docs[docId].revRows;
+  const m=S.docsMeta.find(x=>x.doc===docId);
+  const allReviewers=[...m.reviewers.qa,...m.reviewers.cc,...m.reviewers.to];
+  const tbody=document.getElementById('rv-tbody');
+  if(!rows.length){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--text3)">아직 작성된 개정 내용이 없습니다.</td></tr>`;return;}
+  tbody.innerHTML=rows.map((r,i)=>{
+    if(!S.docs[docId].checks[i]) S.docs[docId].checks[i]={};
+    const checkGroup=allReviewers.map(rev=>{
+      const checked=S.docs[docId].checks[i][rev]||false;
+      const isMine=S.currentUser===rev;
+      return `<div class="check-item"><input type="checkbox" ${checked?'checked':''} ${!isMine?'disabled':''} onchange="toggleCheck('${docId}',${i},'${rev}',this.checked)"><span class="check-name ${isMine?'mine':''}">${rev}</span></div>`;
+    }).join('');
+    const rowComments=r.comments||[];
+    const commentItems=rowComments.map((c,ci)=>{
+      const canDel=S.currentUser===c.author;
+      const replies=(c.replies||[]).map(rep=>`<div class="ic-reply-item">💬 <b>${esc(rep.author)}</b> <span style="color:var(--text3);font-family:'IBM Plex Mono',monospace;font-size:10px">${esc(rep.time)}</span><br>${esc(rep.text)}</div>`).join('');
+      return `<div class="inline-comment ${c.isAuthor?'author-comment':''}">
+        <div class="ic-meta"><span class="ic-author">${esc(c.author)}</span><span class="ic-role ${c.isAuthor?'ic-role-author':'ic-role-reviewer'}">${c.isAuthor?'작성자':'검토자'}</span><span class="ic-time">${esc(c.time)}</span></div>
+        <div class="ic-text">${esc(c.text)}</div>
+        <div class="ic-actions">
+          <button class="ic-btn" onclick="toggleInlineReplyForm('irf-${docId}-${i}-${ci}')">답글</button>
+          ${canDel?`<button class="ic-btn del" onclick="deleteInlineComment('${docId}',${i},${ci})">삭제</button>`:''}
+        </div>
+        <div class="ic-replies">${replies}</div>
+        <div id="irf-${docId}-${i}-${ci}" class="ic-reply-input-row">
+          <input id="irft-${docId}-${i}-${ci}" placeholder="답글 내용...">
+          <button class="btn btn-sm btn-blue" onclick="addInlineReply('${docId}',${i},${ci})">등록</button>
+        </div>
+      </div>`;
+    }).join('')||`<div style="font-size:11px;color:var(--text3)">댓글 없음</div>`;
+    return `
+    <tr>
+      <td class="td-step">${esc(r.step)}</td>
+      <td class="td-before" style="font-size:12px;line-height:1.5">${esc(r.before)||'N/A'}</td>
+      <td class="td-after" style="font-size:12px;line-height:1.5">${esc(r.after)||''}</td>
+      <td class="td-just" style="font-size:11px;line-height:1.5">${esc(r.just)||''}</td>
+      <td class="td-capa-ref">${esc(r.capaRef)||''}</td>
+      <td style="text-align:center;font-size:11px;color:var(--text2);background:#fafbfc">${esc(r.author||'')}</td>
+      <td style="background:#fafbfc;padding:6px 8px"><div class="check-group">${checkGroup}</div></td>
+    </tr>
+    <tr><td colspan="7" style="padding:0;border-top:none">
+      <div class="rev-row-comment-area">
+        <div class="inline-comments">${commentItems}</div>
+        <div class="inline-comment-form">
+          <input id="ic-input-${docId}-${i}" placeholder="이 항목에 댓글...">
+          <button class="btn btn-sm btn-blue" onclick="addInlineComment('${docId}',${i})">등록</button>
+        </div>
+      </div>
+    </td></tr>`;
+  }).join('');
+}
+
+function toggleCheck(docId,rowIdx,reviewer,val){
+  if(S.currentUser!==reviewer){toast('본인 체크란만 수정할 수 있습니다.');return;}
+  if(!S.docs[docId].checks[rowIdx]) S.docs[docId].checks[rowIdx]={};
+  S.docs[docId].checks[rowIdx][reviewer]=val;
+  toast(val?`✓ ${reviewer} 검토 확인`:`${reviewer} 확인 취소`);
+}
+function addInlineComment(docId,rowIdx){
+  const inp=document.getElementById(`ic-input-${docId}-${rowIdx}`);
+  const text=inp.value.trim();
+  if(!text){toast('댓글 내용을 입력하세요.');return;}
+  if(!S.currentUser){toast('먼저 이름을 선택해주세요.');return;}
+  if(!S.docs[docId].revRows[rowIdx].comments) S.docs[docId].revRows[rowIdx].comments=[];
+  S.docs[docId].revRows[rowIdx].comments.push({author:S.currentUser,text,isAuthor,time:nowStr(),replies:[]});
+  inp.value=''; renderReviewRevTable(docId); toast('댓글 등록 완료.');
+}
+function deleteInlineComment(docId,rowIdx,ci){
+  if(S.currentUser!==S.docs[docId].revRows[rowIdx].comments[ci].author){toast('본인 댓글만 삭제할 수 있습니다.');return;}
+  if(confirm('삭제할까요?')){S.docs[docId].revRows[rowIdx].comments.splice(ci,1);renderReviewRevTable(docId);}
+}
+function toggleInlineReplyForm(id){const el=document.getElementById(id);if(el)el.style.display=el.style.display==='flex'?'none':'flex';}
+function addInlineReply(docId,rowIdx,ci){
+  if(!S.currentUser){toast('먼저 이름을 선택해주세요.');return;}
+  const inp=document.getElementById(`irft-${docId}-${rowIdx}-${ci}`);
+  const text=inp.value.trim();if(!text)return;
+  if(!S.docs[docId].revRows[rowIdx].comments[ci].replies) S.docs[docId].revRows[rowIdx].comments[ci].replies=[];
+  S.docs[docId].revRows[rowIdx].comments[ci].replies.push({author:S.currentUser,text,time:nowStr()});
+  inp.value=''; renderReviewRevTable(docId);
+}
+
+/* ════ 하단 코멘트 ════ */
+function renderCommentTable(docId){
+  const rows=S.docs[docId].comments;
+  document.getElementById('comment-count-badge').textContent=rows.length+'개';
+  const tbody=document.getElementById('comment-tbody');
+  if(!rows.length){tbody.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:1rem;color:var(--text3)">아직 코멘트가 없습니다.</td></tr>`;return;}
+  tbody.innerHTML=rows.map((c,i)=>{
+    const batchCtrl=isAuthor?`<input value="${esc(c.batch||'')}" oninput="S.docs['${docId}'].comments[${i}].batch=this.value" style="font-size:11px" placeholder="배치번호">`:esc(c.batch||'');
+    const progBadge=c.progress==='완료'?`<span class="progress-done">완료</span>`:c.progress==='진행중'?`<span class="progress-wip">진행중</span>`:`<span class="progress-pending">대기</span>`;
+    const progCtrl=isAuthor?`<select style="font-size:11px;padding:3px 6px;border-radius:4px" onchange="setCommentProg('${docId}',${i},this.value)"><option ${!c.progress||c.progress==='대기'?'selected':''}>대기</option><option ${c.progress==='진행중'?'selected':''}>진행중</option><option ${c.progress==='완료'?'selected':''}>완료</option></select>`:progBadge;
+    const canDel=S.currentUser===c.requester||isAuthor;
+    const replies=(c.replies||[]).map(rep=>`<div style="margin-left:1rem;margin-top:.4rem;padding:.4rem .6rem;background:#f0f4ff;border-radius:5px;border-left:2px solid var(--accent);font-size:11px">💬 <b>${esc(rep.author)}</b> · <span style="color:var(--text3);font-family:'IBM Plex Mono',monospace">${esc(rep.time)}</span><br>${esc(rep.text)}</div>`).join('');
+    return `<tr>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600">${esc(c.step)}</td>
+      <td><div style="font-size:12px;line-height:1.5">${esc(c.text)}</div>${replies}
+        <div style="margin-top:.4rem;display:flex;gap:.4rem"><input id="crf-${docId}-${i}" placeholder="답글..." style="font-size:11px;flex:1"><button class="btn btn-sm btn-blue" onclick="addCommentReply('${docId}',${i})">답글</button></div></td>
+      <td style="font-size:12px;font-weight:500;text-align:center">${esc(c.requester)}</td>
+      <td>${batchCtrl}</td>
+      <td>${progCtrl}</td>
+      <td style="text-align:center">${canDel?`<button class="btn btn-sm btn-danger" onclick="removeComment('${docId}',${i})">✕</button>`:''}</td>
+    </tr>`;
+  }).join('');
+}
+function addComment(){
+  if(!S.currentUser){toast('먼저 이름을 선택해주세요.');return;}
+  const step=document.getElementById('new-step').value.trim();
+  const text=document.getElementById('new-comment-text').value.trim();
+  const batch=document.getElementById('new-batch').value.trim();
+  if(!text){toast('코멘트 내용을 입력하세요.');return;}
+  S.docs[S.currentDoc].comments.push({step,text,requester:S.currentUser,batch,progress:'대기',time:nowStr(),replies:[]});
+  document.getElementById('new-step').value='';document.getElementById('new-comment-text').value='';document.getElementById('new-batch').value='';
+  renderCommentTable(S.currentDoc);toast('코멘트 등록 완료.');
+}
+function removeComment(docId,i){if(confirm('삭제?')){S.docs[docId].comments.splice(i,1);renderCommentTable(docId);}}
+function setCommentProg(docId,i,val){S.docs[docId].comments[i].progress=val;renderCommentTable(docId);}
+function addCommentReply(docId,i){
+  if(!S.currentUser){toast('이름을 선택해주세요.');return;}
+  const inp=document.getElementById(`crf-${docId}-${i}`);
+  const text=inp.value.trim();if(!text)return;
+  if(!S.docs[docId].comments[i].replies) S.docs[docId].comments[i].replies=[];
+  S.docs[docId].comments[i].replies.push({author:S.currentUser,text,time:nowStr()});
+  inp.value='';renderCommentTable(docId);
+}
+
+/* ════ 초기 실행 ════ */
+document.getElementById('pw-modal').classList.add('hidden');
+document.getElementById('btn-author-mode').classList.remove('hidden');
+loadFromGitHub();
+</script>
+</body>
+</html>
