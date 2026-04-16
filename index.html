@@ -176,7 +176,25 @@ header{background:var(--navy);height:52px;display:flex;align-items:center;justif
 </head>
 <body>
 
-<!-- ══ 작성자 로그인 ══ -->
+<!-- ══ GitHub 토큰 입력 모달 ══ -->
+<div class="overlay hidden" id="token-modal">
+  <div class="modal">
+    <h2>🔑 GitHub 토큰 설정</h2>
+    <p>저장 기능을 사용하려면 GitHub Personal Access Token이 필요합니다.<br>한 번 입력하면 이 브라우저에 저장되어 다음부터 자동으로 사용됩니다.</p>
+    <div class="form-group">
+      <label>GitHub Personal Access Token</label>
+      <input type="password" id="token-input" placeholder="토큰을 여기에 입력하세요" onkeydown="if(event.key==='Enter')saveToken()">
+      <div style="font-size:11px;color:var(--text3);margin-top:4px">
+        발급: github.com/settings/tokens → repo 권한 체크
+      </div>
+    </div>
+    <div id="token-error" style="font-size:12px;color:var(--red);display:none;margin-bottom:8px">토큰을 입력해주세요.</div>
+    <div class="modal-btns">
+      <button class="btn" onclick="document.getElementById('token-modal').classList.add('hidden')">취소</button>
+      <button class="btn btn-primary" onclick="saveToken()">저장 후 계속</button>
+    </div>
+  </div>
+</div>
 <div class="overlay hidden" id="pw-modal">
   <div class="modal">
     <h2>✏️ 작성자 모드 로그인</h2>
@@ -417,9 +435,12 @@ header{background:var(--navy);height:52px;display:flex;align-items:center;justif
 const GH_OWNER  = 'hpaul1024h-cmyk';
 const GH_REPO   = 'EBR-RH-';
 const GH_BRANCH = 'main';
-const GH_TOKEN  = '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';
 const GH_FILE   = 'data.json';
 const AUTHOR_PW = 'ebr2025!';
+
+// 토큰은 코드에 없음 — localStorage에서 불러옴
+function getToken(){ return localStorage.getItem('ebr_gh_token')||''; }
+function setToken(t){ localStorage.setItem('ebr_gh_token',t); }
 
 /* ════ 초기 메타 데이터 ════ */
 const INIT_DOCS = [
@@ -521,12 +542,33 @@ function sortRevRows(){
   toast('📋 Step No. 오름차순 정렬 완료');
 }
 
+/* ════ 토큰 모달 ════ */
+function showTokenModal(callback){
+  document.getElementById('token-modal').classList.remove('hidden');
+  document.getElementById('token-input').value='';
+  document.getElementById('token-error').style.display='none';
+  // 콜백 저장 (토큰 저장 후 실행)
+  window._tokenCallback = callback;
+  setTimeout(()=>document.getElementById('token-input').focus(),100);
+}
+function saveToken(){
+  const t=document.getElementById('token-input').value.trim();
+  if(!t){document.getElementById('token-error').style.display='block';return;}
+  setToken(t);
+  document.getElementById('token-modal').classList.add('hidden');
+  toast('🔑 토큰이 저장되었습니다.');
+  if(window._tokenCallback){window._tokenCallback();window._tokenCallback=null;}
+}
+
 /* ════ GitHub API ════ */
 async function loadFromGitHub(){
   setSaveChip('save-ing','⏳ 불러오는 중...');
   try{
     const url=`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`;
-    const res=await fetch(url,{headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'}});
+    const headers={'Accept':'application/vnd.github.v3+json'};
+    const token=getToken();
+    if(token) headers['Authorization']=`token ${token}`;
+    const res=await fetch(url,{headers});
     if(res.status===404){
       S=initS(null); setSaveChip('save-ok','✓ 새 파일'); toast('새 데이터로 시작합니다.');
     } else if(res.ok){
@@ -543,6 +585,11 @@ async function loadFromGitHub(){
 
 async function saveToGitHub(){
   if(!S.currentUser){toast('먼저 로그인하세요.');return;}
+  // 토큰 없으면 입력 모달 표시
+  if(!getToken()){
+    showTokenModal(()=>saveToGitHub());
+    return;
+  }
   setSaveChip('save-ing','⏳ 저장 중...');
   S.lastSaved=toISO(); S.lastSavedBy=S.currentUser;
   const content=btoa(unescape(encodeURIComponent(JSON.stringify(S,null,2))));
@@ -550,10 +597,15 @@ async function saveToGitHub(){
   if(ghFileSHA) body.sha=ghFileSHA;
   try{
     const res=await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`,
-      {method:'PUT',headers:{'Authorization':`token ${GH_TOKEN}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
+      {method:'PUT',headers:{'Authorization':`token ${getToken()}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
     if(res.ok){
       const json=await res.json(); ghFileSHA=json.content.sha;
       setSaveChip('save-ok',`✓ ${S.lastSaved}`); toast(`💾 저장 완료 (${S.lastSavedBy})`);
+    } else if(res.status===401){
+      // 토큰 만료/오류 → 다시 입력
+      setToken('');
+      toast('⚠ 토큰이 유효하지 않습니다. 다시 입력해주세요.',3000);
+      showTokenModal(()=>saveToGitHub());
     } else if(res.status===409){
       toast('⚠ 충돌: 다른 사람이 먼저 저장했습니다. 새로고침 후 다시 시도하세요.',4000);
       setSaveChip('save-err','⚠ 충돌');
