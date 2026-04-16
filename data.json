@@ -1,32 +1,256 @@
 {
   "docs": {
-    "200K-0002": {"sc":{"b1":"","b2":"","b3":"","rv":"05월 7일","aebr":"","aedms":"","rel":""},"rows":[],"cmts":[],"chk":{}},
-    "200K-0005": {"sc":{"b1":"","b2":"","b3":"","rv":"05월 14일","aebr":"","aedms":"","rel":""},"rows":[],"cmts":[],"chk":{}},
-    "200K-1008": {"sc":{"b1":"","b2":"","b3":"","rv":"05월 21일","aebr":"","aedms":"","rel":""},"rows":[],"cmts":[],"chk":{}},
-    "200K-1009": {"sc":{"b1":"","b2":"","b3":"","rv":"05월 28일","aebr":"","aedms":"","rel":""},"rows":[],"cmts":[],"chk":{}},
-    "200K-0004": {"sc":{"b1":"","b2":"","b3":"","rv":"06월 04일","aebr":"","aedms":"","rel":""},"rows":[],"cmts":[],"chk":{}},
-    "200K-1001": {"sc":{"b1":"","b2":"","b3":"","rv":"06월 11일","aebr":"","aedms":"","rel":""},"rows":[],"cmts":[],"chk":{}}
+    "200K-0002": {
+      "sc": {
+        "b1": "",
+        "b2": "",
+        "b3": "",
+        "rv": "05월 7일",
+        "aebr": "",
+        "aedms": "",
+        "rel": ""
+      },
+      "rows": [],
+      "cmts": [],
+      "chk": {}
+    },
+    "200K-0005": {
+      "sc": {
+        "b1": "",
+        "b2": "",
+        "b3": "",
+        "rv": "05월 14일",
+        "aebr": "",
+        "aedms": "",
+        "rel": ""
+      },
+      "rows": [],
+      "cmts": [],
+      "chk": {}
+    },
+    "200K-1008": {
+      "sc": {
+        "b1": "",
+        "b2": "",
+        "b3": "",
+        "rv": "05월 21일",
+        "aebr": "",
+        "aedms": "",
+        "rel": ""
+      },
+      "rows": [],
+      "cmts": [],
+      "chk": {}
+    },
+    "200K-1009": {
+      "sc": {
+        "b1": "",
+        "b2": "",
+        "b3": "",
+        "rv": "05월 28일",
+        "aebr": "",
+        "aedms": "",
+        "rel": ""
+      },
+      "rows": [],
+      "cmts": [],
+      "chk": {}
+    },
+    "200K-0004": {
+      "sc": {
+        "b1": "",
+        "b2": "",
+        "b3": "",
+        "rv": "06월 04일",
+        "aebr": "",
+        "aedms": "",
+        "rel": ""
+      },
+      "rows": [],
+      "cmts": [],
+      "chk": {}
+    },
+    "200K-1001": {
+      "sc": {
+        "b1": "",
+        "b2": "",
+        "b3": "",
+        "rv": "06월 11일",
+        "aebr": "",
+        "aedms": "",
+        "rel": ""
+      },
+      "rows": [],
+      "cmts": [],
+      "chk": {}
+    }
   },
   "dm": [
-    {"doc":"200K-0002","ver":"4.0","title":"[200K] Cell Expansion in 120 L Bioreactor(s)","dss":"허석현","reviewers":{"qa":["유상민"],"cc":["김아영"],"to":["신나라"]},"td":"5//7"},
-    {"doc":"200K-0005","ver":"4.0","title":"[200K] Harvest and Recovery","dss":"허석현","reviewers":{"qa":["정용민"],"cc":["서지욱","조탁현"],"to":["조민"]},"td":"05월 14일"},
-    {"doc":"200K-1008","ver":"4.0","title":"[200K] 2 M NaOH Stock Solution in V-1120 (920 kg)","dss":"허석현","reviewers":{"qa":["성유잔"],"cc":["이현중","김효담"],"to":["조민"]},"td":"05월 21일"},
-    {"doc":"200K-1009","ver":"4.0","title":"[200K] 2M NaOH Stock Solution (300 kg)","dss":"허석현","reviewers":{"qa":["성유잔"],"cc":["이현중","김효담"],"to":["조민"]},"td":"05월 28일"},
-    {"doc":"200K-0004","ver":"6.0","title":"[200K] Production in 15000L Bioreactor(s)","dss":"허석현","reviewers":{"qa":["정용민"],"cc":["서지욱","조탁현"],"to":["조민"]},"td":"06월 04일"},
-    {"doc":"200K-1001","ver":"4.0","title":"[200K] Growth Medium (30kg)","dss":"허석현","reviewers":{"qa":["정수연"],"cc":["이채영"],"to":["조민"]},"td":"06월 11일"}
+    {
+      "doc": "200K-0002",
+      "ver": "4.0",
+      "title": "[200K] Cell Expansion in 120 L Bioreactor(s)",
+      "dss": "허석현",
+      "reviewers": {
+        "qa": [
+          "유상민"
+        ],
+        "cc": [
+          "김아영"
+        ],
+        "to": [
+          "신나라"
+        ]
+      },
+      "td": "5//7"
+    },
+    {
+      "doc": "200K-0005",
+      "ver": "4.0",
+      "title": "[200K] Harvest and Recovery",
+      "dss": "허석현",
+      "reviewers": {
+        "qa": [
+          "정용민"
+        ],
+        "cc": [
+          "서지욱",
+          "조탁현"
+        ],
+        "to": [
+          "조민"
+        ]
+      },
+      "td": "05월 14일"
+    },
+    {
+      "doc": "200K-1008",
+      "ver": "4.0",
+      "title": "[200K] 2 M NaOH Stock Solution in V-1120 (920 kg)",
+      "dss": "허석현",
+      "reviewers": {
+        "qa": [
+          "성유잔"
+        ],
+        "cc": [
+          "이현중",
+          "김효담"
+        ],
+        "to": [
+          "조민"
+        ]
+      },
+      "td": "05월 21일"
+    },
+    {
+      "doc": "200K-1009",
+      "ver": "4.0",
+      "title": "[200K] 2M NaOH Stock Solution (300 kg)",
+      "dss": "허석현",
+      "reviewers": {
+        "qa": [
+          "성유잔"
+        ],
+        "cc": [
+          "이현중",
+          "김효담"
+        ],
+        "to": [
+          "조민"
+        ]
+      },
+      "td": "05월 28일"
+    },
+    {
+      "doc": "200K-0004",
+      "ver": "6.0",
+      "title": "[200K] Production in 15000L Bioreactor(s)",
+      "dss": "허석현",
+      "reviewers": {
+        "qa": [
+          "정용민"
+        ],
+        "cc": [
+          "서지욱",
+          "조탁현"
+        ],
+        "to": [
+          "조민"
+        ]
+      },
+      "td": "06월 04일"
+    },
+    {
+      "doc": "200K-1001",
+      "ver": "4.0",
+      "title": "[200K] Growth Medium (30kg)",
+      "dss": "허석현",
+      "reviewers": {
+        "qa": [
+          "정수연"
+        ],
+        "cc": [
+          "이채영"
+        ],
+        "to": [
+          "조민"
+        ]
+      },
+      "td": "06월 11일"
+    }
   ],
   "cl": [
-    {"no":"CC2-2025-255 (PR86985)","desc":"[Addendum of CC2-2024-619] Addition of FIT method using 30inchx6 round housing by using Reference tank","rd":["200K-0004"]},
-    {"no":"CC2-2025-773 (PR93897) / CC2-2025-1333 (PR100519)","desc":"Change of product name and concentration specification for 10% ADCF Antifoam Solution","rd":["200K-0004"]},
-    {"no":"CC2-2025-1238 (PR99404)","desc":"Introduction of new sampling bag (MicroDigital) for DS manufacturing process","rd":["200K-0002","200K-0003","200K-0004"]},
-    {"no":"CC2-2026-001 (PR106881)","desc":"Dualization of chemical materials used in DS manufacturing with Kirsch pharma as an additional supplier.","rd":["200K-1004","200K-1007"]},
-    {"no":"CC2-2026-051 (PR107551)","desc":"Permanent Change of Production Lot Size, Media Fill Volume, Bottom Aeration in 200K USP","rd":["200K-0004","200K-1004"]},
-    {"no":"CC2-2026-024 (PR107255)","desc":"[Addendum of CC2-2025-1297] Permanent Change of Harvest Depth Filter Usage Type in 200K Upstream Process","rd":["200K-0005"]}
+    {
+      "no": "CC2-2025-255 (PR86985)",
+      "desc": "[Addendum of CC2-2024-619] Addition of FIT method using 30inchx6 round housing by using Reference tank",
+      "rd": [
+        "200K-0004"
+      ]
+    },
+    {
+      "no": "CC2-2025-773 (PR93897) / CC2-2025-1333 (PR100519)",
+      "desc": "Change of product name and concentration specification for 10% ADCF Antifoam Solution",
+      "rd": [
+        "200K-0004"
+      ]
+    },
+    {
+      "no": "CC2-2025-1238 (PR99404)",
+      "desc": "Introduction of new sampling bag (MicroDigital) for DS manufacturing process",
+      "rd": [
+        "200K-0002",
+        "200K-0003",
+        "200K-0004"
+      ]
+    },
+    {
+      "no": "CC2-2026-001 (PR106881)",
+      "desc": "Dualization of chemical materials used in DS manufacturing with Kirsch pharma as an additional supplier.",
+      "rd": [
+        "200K-1004",
+        "200K-1007"
+      ]
+    },
+    {
+      "no": "CC2-2026-051 (PR107551)",
+      "desc": "Permanent Change of Production Lot Size, Media Fill Volume, Bottom Aeration in 200K USP",
+      "rd": [
+        "200K-0004",
+        "200K-1004"
+      ]
+    },
+    {
+      "no": "CC2-2026-024 (PR107255)",
+      "desc": "[Addendum of CC2-2025-1297] Permanent Change of Harvest Depth Filter Usage Type in 200K Upstream Process",
+      "rd": [
+        "200K-0005"
+      ]
+    }
   ],
   "oof": "06월 03일",
-  "mode": "viewer",
-  "user": "",
+  "mode": "author",
+  "user": "허석현",
   "cur": "200K-0002",
-  "ls": "",
-  "lsb": ""
+  "ls": "2026-04-16 20:53",
+  "lsb": "허석현"
 }
