@@ -1,0 +1,256 @@
+{
+  "docs": {
+    "200K-0002": {
+      "schedule": {
+        "testBatch1": "",
+        "testBatch2": "",
+        "testBatch3": "",
+        "review": "",
+        "approveEBR": "",
+        "approveEDMS": "",
+        "release": ""
+      },
+      "revRows": [],
+      "comments": [],
+      "checks": {}
+    },
+    "200K-0005": {
+      "schedule": {
+        "testBatch1": "",
+        "testBatch2": "",
+        "testBatch3": "",
+        "review": "",
+        "approveEBR": "",
+        "approveEDMS": "",
+        "release": ""
+      },
+      "revRows": [],
+      "comments": [],
+      "checks": {}
+    },
+    "200K-1008": {
+      "schedule": {
+        "testBatch1": "",
+        "testBatch2": "",
+        "testBatch3": "",
+        "review": "",
+        "approveEBR": "",
+        "approveEDMS": "",
+        "release": ""
+      },
+      "revRows": [],
+      "comments": [],
+      "checks": {}
+    },
+    "200K-1009": {
+      "schedule": {
+        "testBatch1": "",
+        "testBatch2": "",
+        "testBatch3": "",
+        "review": "",
+        "approveEBR": "",
+        "approveEDMS": "",
+        "release": ""
+      },
+      "revRows": [],
+      "comments": [],
+      "checks": {}
+    },
+    "200K-0004": {
+      "schedule": {
+        "testBatch1": "",
+        "testBatch2": "",
+        "testBatch3": "",
+        "review": "",
+        "approveEBR": "",
+        "approveEDMS": "",
+        "release": ""
+      },
+      "revRows": [],
+      "comments": [],
+      "checks": {}
+    },
+    "200K-1001": {
+      "schedule": {
+        "testBatch1": "",
+        "testBatch2": "",
+        "testBatch3": "",
+        "review": "",
+        "approveEBR": "",
+        "approveEDMS": "",
+        "release": ""
+      },
+      "revRows": [],
+      "comments": [],
+      "checks": {}
+    }
+  },
+  "docsMeta": [
+    {
+      "doc": "200K-0002",
+      "ver": "4.0",
+      "title": "[200K] Cell Expansion in 120 L Bioreactor(s)",
+      "dss": "허석현",
+      "reviewers": {
+        "qa": [
+          "유상민"
+        ],
+        "cc": [
+          "김아영"
+        ],
+        "to": [
+          "신나라"
+        ]
+      },
+      "targetDate": "5//7"
+    },
+    {
+      "doc": "200K-0004",
+      "ver": "6.0",
+      "title": "[200K] Production in 15000L Bioreactor(s)",
+      "dss": "허석현",
+      "reviewers": {
+        "qa": [
+          "정웅민"
+        ],
+        "cc": [
+          "서지욱",
+          "조탁현"
+        ],
+        "to": [
+          "조민"
+        ]
+      },
+      "targetDate": "06월 04일"
+    },
+    {
+      "doc": "200K-0005",
+      "ver": "4.0",
+      "title": "[200K] Harvest and Recovery",
+      "dss": "허석현",
+      "reviewers": {
+        "qa": [
+          "정웅민"
+        ],
+        "cc": [
+          "서지욱",
+          "조탁현"
+        ],
+        "to": [
+          "조민"
+        ]
+      },
+      "targetDate": "05월 14일"
+    },
+    {
+      "doc": "200K-1001",
+      "ver": "4.0",
+      "title": "[200K] Growth Medium (30kg)",
+      "dss": "허석현",
+      "reviewers": {
+        "qa": [
+          "정수연"
+        ],
+        "cc": [
+          "이채영"
+        ],
+        "to": [
+          "조민"
+        ]
+      },
+      "targetDate": "06월 11일"
+    },
+    {
+      "doc": "200K-1008",
+      "ver": "4.0",
+      "title": "[200K] 2 M NaOH Stock Solution in V-1120 (920 kg)",
+      "dss": "허석현",
+      "reviewers": {
+        "qa": [
+          "성유잔"
+        ],
+        "cc": [
+          "이현중",
+          "김효담"
+        ],
+        "to": [
+          "조민"
+        ]
+      },
+      "targetDate": "05월 21일"
+    },
+    {
+      "doc": "200K-1009",
+      "ver": "4.0",
+      "title": "[200K] 2M NaOH Stock Solution (300 kg)",
+      "dss": "허석현",
+      "reviewers": {
+        "qa": [
+          "성유잔"
+        ],
+        "cc": [
+          "이현중",
+          "김효담"
+        ],
+        "to": [
+          "조민"
+        ]
+      },
+      "targetDate": "05월 28일"
+    }
+  ],
+  "capaList": [
+    {
+      "no": "CC2-2025-255 (PR86985)",
+      "desc": "[Addendum of CC2-2024-619] Addition of FIT method using 30inchx6 round housing by using Reference tank",
+      "relDocs": [
+        "200K-0004"
+      ]
+    },
+    {
+      "no": "CC2-2025-773 (PR93897)\nCC2-2025-1333 (PR100519)",
+      "desc": "Change of product name and concentration specification for 10% ADCF Antifoam Solution (MSP1574, MSP3059)\n[Addendum of CC2-2025-773] Product name change correction of 10% ADCF Antifoam Solution",
+      "relDocs": [
+        "200K-0004"
+      ]
+    },
+    {
+      "no": "CC2-2025-1238 (PR99404)",
+      "desc": "Introduction of new sampling bag (MicroDigital) for DS manufacturing process",
+      "relDocs": [
+        "200K-0002",
+        "200K-0003",
+        "200K-0004"
+      ]
+    },
+    {
+      "no": "CC2-2026-001 (PR106881)",
+      "desc": "Dualization of chemical materials used in DS manufacturing with Kirsch pharma as an additional supplier.",
+      "relDocs": [
+        "200K-1004",
+        "200K-1007"
+      ]
+    },
+    {
+      "no": "CC2-2026-024 (PR107255)",
+      "desc": "[Addendum of CC2-2025-1297] Permanent Change of Harvest Depth Filter Usage Type in 200K Upstream Process",
+      "relDocs": [
+        "200K-0005"
+      ]
+    },
+    {
+      "no": "CC2-2026-051 (PR107551)",
+      "desc": "Permanent Change of Production Lot Size, Media Fill Volume, Bottom Aeration in 200K USP",
+      "relDocs": [
+        "200K-0004",
+        "200K-1004"
+      ]
+    }
+  ],
+  "globalOOF": "06월 03일",
+  "mode": "author",
+  "currentUser": "허석현",
+  "currentDoc": "200K-0002",
+  "lastSaved": "2026-04-16 14:55",
+  "lastSavedBy": "허석현"
+}
