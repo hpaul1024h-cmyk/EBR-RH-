@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>200K EBR 개정 검토 시스템</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root{
+  --navy:#0d2137;--navy2:#1a3a57;--gd:#2E5B2E;--gm:#4a7c4a;--gl:#e8f5e8;
+  --or:#C0522B;--bl:#1a6fa8;--bll:#e8f3fb;--ac:#00b894;--rd:#d63031;
+  --yb:#fffde7;--pu:#6c3483;--bg:#f0f4f8;--bo:#d0dce8;--tx:#0d2137;--t2:#4a6680;--t3:#8fa9bf;
+  --sh:0 2px 8px rgba(13,33,55,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--tx);font-size:13px}
+.hidden{display:none!important}
+.btn{font-family:'Noto Sans KR',sans-serif;font-size:12px;font-weight:500;padding:6px 14px;border-radius:6px;cursor:pointer;transition:.15s;border:1px solid var(--bo);background:#fff;color:var(--tx)}.btn:hover{background:var(--bg)}
+.bp{background:var(--gd);color:#fff;border-color:var(--gd)}.bp:hover{background:#245024}
+.bb{background:var(--bl);color:#fff;border-color:var(--bl)}.bb:hover{background:#155d8f}
+.bd{background:var(--rd);color:#fff;border-color:var(--rd)}
+.bai{background:var(--pu);color:#fff;border:none;font-size:11px;padding:4px 9px;border-radius:5px;cursor:pointer;font-family:'Noto Sans KR',sans-serif}.bai:hover{background:#5b2c7a}
+.bs{font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;transition:.15s}.bs:hover{background:rgba(255,255,255,.25)}
+.bsm{padding:4px 10px;font-size:11px}
+input,textarea,select{font-family:'Noto Sans KR',sans-serif;font-size:12px;border:1px solid var(--bo);border-radius:5px;padding:5px 8px;color:var(--tx);background:#fff;outline:none;transition:.15s;width:100%}
+input:focus,textarea:focus,select:focus{border-color:var(--ac);box-shadow:0 0 0 2px rgba(0,184,148,.12)}
+input[readonly],textarea[readonly]{background:#f7f9fb;color:var(--t2);cursor:default}
+textarea{resize:vertical;line-height:1.5}
+label{font-size:11px;font-weight:600;color:var(--t2);display:block;margin-bottom:3px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center}
+.mo{background:#fff;border-radius:14px;padding:2rem;width:480px;max-width:94vw;box-shadow:0 20px 60px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto}
+.mow{width:700px}
+.mo h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:.3rem}
+.mo p{font-size:12px;color:var(--t2);margin-bottom:1rem}
+.mb{display:flex;gap:.5rem;justify-content:flex-end;margin-top:1rem}
+.er{font-size:12px;color:var(--rd);margin-bottom:8px;display:none}
+.fg{margin-bottom:.75rem}
+header{background:var(--navy);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;border-bottom:2px solid var(--ac);position:sticky;top:0;z-index:200}
+.hlo{display:flex;align-items:center;gap:10px}
+.hma{width:28px;height:28px;background:var(--ac);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--navy)}
+.hte{font-size:14px;font-weight:600;color:#fff}
+.hsu{font-size:10px;color:rgba(255,255,255,.4);font-family:'IBM Plex Mono',monospace}
+.hri{display:flex;align-items:center;gap:8px}
+.uc{font-size:11px;padding:4px 10px;border-radius:12px;font-family:'IBM Plex Mono',monospace}
+.ua{background:rgba(0,184,148,.2);color:#00b894;border:1px solid rgba(0,184,148,.3)}
+.ur{background:rgba(26,111,168,.2);color:#74b9ff;border:1px solid rgba(26,111,168,.3)}
+.hb{font-size:11px;padding:5px 12px;border-radius:5px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:.15s}.hb:hover{background:rgba(255,255,255,.15)}
+.sc{font-size:10px;padding:3px 8px;border-radius:4px;font-family:'IBM Plex Mono',monospace}
+.sok{background:rgba(0,184,148,.15);color:#00b894}.sin{background:rgba(255,193,7,.15);color:#b8860b}.ser{background:rgba(214,48,49,.15);color:var(--rd)}
+#main-view{padding:1.5rem}
+.ph{margin-bottom:1.25rem}.ph h1{font-size:18px;font-weight:700;color:var(--navy)}.ph p{font-size:12px;color:var(--t2);margin-top:3px}
+.tw{overflow-x:auto;border-radius:10px;border:1px solid var(--bo);box-shadow:var(--sh);margin-bottom:1.5rem}
+.st{width:100%;border-collapse:collapse;min-width:1350px}
+.st th{padding:7px 8px;text-align:center;font-size:11px;font-weight:600;white-space:nowrap;border:1px solid rgba(255,255,255,.15)}
+.st td{padding:5px 7px;border:1px solid var(--bo);vertical-align:middle;font-size:12px}
+.dn{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--bl);text-align:center;white-space:nowrap}
+.ti input{border:none;background:transparent;font-size:11px;text-align:center;padding:2px 4px;width:100%;min-width:60px}
+.ti input:focus{background:#fff;border:1px solid var(--ac);border-radius:3px}
+.rch2{display:inline-block;padding:2px 5px;border-radius:3px;font-size:10px;background:var(--bll);color:var(--bl);margin:1px}
+.bw{font-size:10px;padding:3px 8px;border-radius:4px;background:var(--gd);color:#fff;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:.15s;display:block;width:100%;margin-bottom:3px}.bw:hover{background:#245024}
+.bwd{opacity:.35;cursor:not-allowed!important;background:#999!important}
+.brv{font-size:10px;padding:3px 8px;border-radius:4px;background:var(--bl);color:#fff;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:.15s;display:block;width:100%}.brv:hover{background:#155d8f}
+.ct{width:100%;border-collapse:collapse;font-size:12px}
+.ct th{background:var(--navy2);color:#fff;padding:7px 10px;text-align:left;font-weight:500;font-size:11px;border:1px solid rgba(255,255,255,.1)}
+.ct td{padding:7px 10px;border:1px solid var(--bo);vertical-align:top}.ct tr:nth-child(even) td{background:#fafbfc}
+.rdc{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;background:var(--gl);color:var(--gd);margin:1px;font-family:'IBM Plex Mono',monospace}
+#write-view{padding:1.5rem}
+.wh{background:var(--gd);border-radius:10px;padding:1.25rem 1.5rem;color:#fff;margin-bottom:1.25rem}.wh h2{font-size:15px;font-weight:600;margin-bottom:.5rem}
+.wm{display:flex;gap:16px;flex-wrap:wrap}.wm span{font-size:11px;color:rgba(255,255,255,.55)}.wm span b{color:#fff;font-weight:500;margin-left:4px}
+.rc2{background:#fff;border-radius:10px;border:1px solid var(--bo);overflow:hidden;margin-bottom:1.25rem;box-shadow:var(--sh)}
+.rch{background:var(--gd);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.4rem}.rch h3{font-size:13px;font-weight:600;color:#fff}
+.rt{width:100%;border-collapse:collapse;font-size:12px}
+.rt th{background:var(--gm);color:#fff;padding:7px 10px;text-align:center;font-weight:500;font-size:11px;border:1px solid rgba(255,255,255,.15)}
+.rt td{padding:8px 10px;border:1px solid var(--bo);vertical-align:top}
+.ts{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;text-align:center;color:var(--navy);background:#fafbfc;vertical-align:middle}
+.tb{background:#fff0f0}.ta{background:#f0fff4}.thint{background:#fff8e8}.tj{background:#f0f4ff}
+.tcref{background:#fffde7;text-align:center;font-size:11px;font-family:'IBM Plex Mono',monospace;vertical-align:middle}
+#review-view{padding:1.5rem}
+.rvh{background:var(--navy);border-radius:10px;padding:1.25rem 1.5rem;color:#fff;margin-bottom:1.25rem}.rvh h2{font-size:15px;font-weight:600;margin-bottom:.5rem}
+.dm{display:flex;gap:16px;flex-wrap:wrap}.dm span{font-size:11px;color:rgba(255,255,255,.5)}.dm span b{color:#fff;font-weight:500;margin-left:4px}
+.dts{display:flex;gap:4px;margin-bottom:1.25rem;flex-wrap:wrap}
+.dt{font-size:12px;padding:6px 14px;border-radius:6px;border:1px solid var(--bo);background:#fff;color:var(--t2);cursor:pointer;transition:.15s;font-family:'IBM Plex Mono',monospace;position:relative}
+.dt:hover{border-color:var(--bl);color:var(--bl)}.dt.active{background:var(--gd);color:#fff;border-color:var(--gd)}
+.dt.hc::after{content:'';width:7px;height:7px;background:var(--or);border-radius:50%;position:absolute;top:2px;right:2px}
+.ckg{display:flex;flex-direction:column;gap:3px}.cki{display:flex;align-items:center;gap:4px}
+.cki input[type=checkbox]{width:14px;height:14px;cursor:pointer;accent-color:var(--ac);flex-shrink:0}
+.cki input[type=checkbox]:disabled{cursor:not-allowed;opacity:.4}
+.ckn{font-size:10px;color:var(--t2);white-space:nowrap}.ckn.me{color:var(--gd);font-weight:700}
+.rca{background:#f8fbff;border-top:1px dashed var(--bo);padding:.6rem .75rem}
+.ic2{display:flex;flex-direction:column;gap:2px;padding:.5rem .6rem;background:#fff;border-radius:6px;border-left:3px solid var(--bl);margin-bottom:.4rem}
+.ic2.ica{border-left-color:var(--gd)}
+.icm{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap}
+.ican{font-size:11px;font-weight:600;color:var(--navy)}.ict{font-size:10px;color:var(--t3);font-family:'IBM Plex Mono',monospace}
+.icr{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:600}
+.icra{background:#e8f5e8;color:var(--gd)}.icrr{background:var(--bll);color:var(--bl)}
+.icx{font-size:12px;color:var(--tx);line-height:1.5}
+.icas{display:flex;gap:5px;margin-top:4px}
+.icb{font-size:10px;padding:2px 7px;border-radius:3px;border:1px solid var(--bo);background:#fff;cursor:pointer}
+.icb:hover{border-color:var(--bl);color:var(--bl)}.icb.del:hover{border-color:var(--rd);color:var(--rd)}
+.icrs{margin-left:1rem;margin-top:.4rem}
+.icri{padding:.4rem .6rem;background:#f0f4ff;border-radius:5px;border-left:2px solid var(--ac);margin-bottom:.3rem;font-size:11px;line-height:1.5}
+.rif{display:none;gap:.4rem;align-items:center;margin-top:.4rem}.rif input{flex:1;font-size:11px}
+.icf{display:flex;gap:.4rem;align-items:center;margin-top:.4rem}.icf input{flex:1;font-size:11px}
+.cs2{background:#fff;border-radius:10px;border:1px solid var(--bo);overflow:hidden;box-shadow:var(--sh);margin-top:1.25rem}
+.csh{background:var(--navy2);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between}.csh h3{font-size:13px;font-weight:600;color:#fff}
+.cmtbl{width:100%;border-collapse:collapse;font-size:12px}
+.cmtbl th{background:#2c3e50;color:rgba(255,255,255,.85);padding:7px 10px;text-align:left;font-weight:500;font-size:11px;border:1px solid rgba(255,255,255,.1)}
+.cmtbl td{padding:7px 10px;border:1px solid var(--bo);vertical-align:top}.cmtbl tr:nth-child(even) td{background:#fafbfc}
+.pd{background:#e8faf6;color:var(--ac);font-size:10px;padding:2px 7px;border-radius:3px;font-weight:600;display:inline-block}
+.pw2{background:var(--yb);color:#e67e22;border:1px solid #fce08a;font-size:10px;padding:2px 7px;border-radius:3px;font-weight:600;display:inline-block}
+.pp{background:#f5f5f5;color:#999;font-size:10px;padding:2px 7px;border-radius:3px;font-weight:600;display:inline-block}
+.acf{padding:1rem;border-top:1px solid var(--bo);background:#fafbfc}
+.fr5{display:grid;grid-template-columns:110px 1fr 100px 140px auto;gap:.5rem;align-items:end}
+.brow{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.25rem}
+.sbx{background:#f8f9fa;border:1px solid var(--bo);border-radius:8px;padding:1rem;margin-bottom:1rem}
+.sbh{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem;flex-wrap:wrap;gap:.4rem}
+.sn{font-size:11px;font-weight:700;color:#fff;background:var(--pu);padding:2px 9px;border-radius:10px}
+.pbx{background:#fff;border:1px solid #d7b8f3;border-radius:6px;padding:.75rem;font-size:11px;line-height:1.7;white-space:pre-wrap;font-family:'IBM Plex Mono',monospace;max-height:200px;overflow-y:auto;word-break:break-all;color:var(--tx)}
+.bc{font-size:11px;padding:4px 12px;border-radius:5px;border:1px solid var(--pu);background:#fff;color:var(--pu);cursor:pointer;transition:.15s}.bc:hover{background:#f8f0ff}.bc.copied{background:var(--ac);border-color:var(--ac);color:#fff}
+.pok{background:#e8faf6;border:1px solid #a9dfbf;border-radius:6px;padding:.6rem .75rem;font-size:12px;color:var(--gd);margin-top:.5rem;display:none}
+.per{background:#fdeaea;border:1px solid #f1948a;border-radius:6px;padding:.6rem .75rem;font-size:12px;color:var(--rd);margin-top:.5rem;display:none}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:9px 20px;border-radius:7px;font-size:12px;border-left:3px solid var(--ac);z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<!-- 토큰 모달 -->
+<div class="ov hidden" id="tok-mod">
+  <div class="mo">
+    <h2>GitHub 토큰 설정</h2>
+    <p>저장 기능에 필요합니다. 한 번 입력하면 이 브라우저에 자동 저장됩니다.</p>
+    <div class="fg"><label>GitHub Personal Access Token</label>
+      <input type="password" id="tok-in" placeholder="토큰을 입력하세요" onkeydown="if(event.key==='Enter')saveTok()">
+      <div style="font-size:11px;color:var(--t3);margin-top:4px">발급: github.com/settings/tokens (repo 권한)</div>
+    </div>
+    <div id="tok-er" style="font-size:12px;color:var(--rd);display:none;margin-bottom:8px">토큰을 입력해주세요.</div>
+    <div class="mb"><button class="btn" onclick="document.getElementById('tok-mod').classList.add('hidden')">취소</button><button class="btn bp" onclick="saveTok()">저장</button></div>
+  </div>
+</div>
+
+<!-- 저장 비밀번호 모달 -->
+<div class="ov hidden" id="spw-mod">
+  <div class="mo">
+    <h2>저장 비밀번호 확인</h2>
+    <p>저장하려면 비밀번호를 입력하세요.</p>
+    <div class="fg"><label>저장 비밀번호</label>
+      <input type="password" id="spw-in" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')chkSpw()">
+    </div>
+    <div id="spw-er" class="er">비밀번호가 올바르지 않습니다.</div>
+    <div class="mb"><button class="btn" onclick="closeSpw()">취소</button><button class="btn bp" onclick="chkSpw()">확인</button></div>
+  </div>
+</div>
+
+<!-- 작성자 로그인 모달 -->
+<div class="ov hidden" id="pw-mod">
+  <div class="mo">
+    <h2>작성자 모드 로그인</h2>
+    <p>이름을 선택하고 비밀번호를 입력하세요.</p>
+    <div class="fg"><label>이름 선택</label>
+      <select id="au-name">
+        <option value="">-- 이름 선택 --</option>
+        <option>허석현</option><option>박인성</option><option>박진현</option>
+        <option>사공민</option><option>김나래</option><option>정소영</option>
+        <option>노선옥</option><option>하종석</option><option>한서원</option>
+      </select>
+    </div>
+    <div class="fg"><label>비밀번호</label>
+      <input type="password" id="au-pw" placeholder="비밀번호 입력" onkeydown="if(event.key==='Enter')chkPw()">
+    </div>
+    <div id="pw-er" class="er">비밀번호가 올바르지 않습니다.</div>
+    <div class="mb"><button class="btn" onclick="closePw()">취소</button><button class="btn bp" onclick="chkPw()">로그인</button></div>
+  </div>
+</div>
+
+<!-- 검토자 선택 모달 -->
+<div class="ov hidden" id="rv-mod">
+  <div class="mo">
+    <h2>검토자 선택</h2>
+    <p>본인 이름을 선택하세요.</p>
+    <div id="rv-list" style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem"></div>
+    <div class="mb"><button class="btn" onclick="document.getElementById('rv-mod').classList.add('hidden')">취소</button></div>
+  </div>
+</div>
+
+<!-- Bulk AI 모달 -->
+<div class="ov hidden" id="ai-mod">
+  <div class="mo mow">
+    <h2>전체 Justification AI 생성</h2>
+    <p>프롬프트를 복사해서 Copilot에 붙여넣으세요. 답변을 받은 후 STEP 2에 붙여넣으면 자동 입력됩니다.</p>
+    <div class="sbx">
+      <div class="sbh"><span class="sn">STEP 1</span><span style="font-size:12px;font-weight:600;color:var(--navy)">프롬프트 복사 후 Copilot 붙여넣기</span><button class="bc" id="cp-btn" onclick="cpPrompt()">복사</button></div>
+      <div class="pbx" id="ai-prompt"></div>
+    </div>
+    <div class="sbx">
+      <div class="sbh"><span class="sn">STEP 2</span><span style="font-size:12px;font-weight:600;color:var(--navy)">AI 답변 붙여넣기 후 자동 입력</span><button class="btn bai bsm" onclick="parseApply()">자동 입력</button></div>
+      <textarea id="ai-result" rows="7" placeholder="[1] Section title was updated...&#10;[2] Step numbers were renumbered..."></textarea>
+      <div class="pok" id="p-ok"></div><div class="per" id="p-er"></div>
+    </div>
+    <div class="mb"><button class="btn" onclick="document.getElementById('ai-mod').classList.add('hidden')">닫기</button></div>
+  </div>
+</div>
+
+<!-- 헤더 -->
+<header>
+  <div class="hlo">
+    <div class="hma">DS</div>
+    <div><div class="hte">200K EBR 개정 검토 시스템</div><div class="hsu">배양 CT-P16 [200K] · CT-P14</div></div>
+  </div>
+  <div class="hri">
+    <span class="sc hidden" id="sv-chip"></span>
+    <span class="uc hidden" id="u-chip"></span>
+    <button class="hb hidden" id="btn-au" onclick="showPw()">작성자 로그인</button>
+    <button class="hb hidden" id="btn-lo" onclick="logout()">로그아웃</button>
+    <button class="hb" onclick="goMain()">메인화면</button>
+    <button class="hb" onclick="initSave()">저장</button>
+  </div>
+</header>
+
+<!-- 메인 -->
+<div id="main-view">
+  <div class="ph"><h1>200K(CT-P14) EBR 개정 검토 현황</h1><p>작성자 모드에서 개정 내용을 작성하고 저장하세요.</p></div>
+  <div class="tw">
+    <table class="st">
+      <thead>
+        <tr>
+          <th colspan="4" style="background:var(--gd);color:#fff">200K(CT-P14) EBR</th>
+          <th colspan="6" style="background:var(--gm);color:#fff">검토 담당자</th>
+          <th rowspan="2" style="background:#4a5568;color:#fff;vertical-align:middle;font-size:11px">OOF<br><span style="font-size:9px;opacity:.7">(전체공통)</span></th>
+          <th colspan="4" style="background:var(--or);color:#fff">Target</th>
+          <th rowspan="2" style="background:#2d3748;color:#fff;vertical-align:middle;font-size:11px">작성하기</th>
+          <th rowspan="2" style="background:var(--navy2);color:#fff;vertical-align:middle;font-size:11px">검토하기</th>
+        </tr>
+        <tr>
+          <th style="background:var(--gd);color:#fff">문서번호 <button class="bs" onclick="sortDocs()">정렬</button></th>
+          <th style="background:var(--gd);color:#fff">버전</th>
+          <th style="background:var(--gd);color:#fff">Title</th>
+          <th style="background:var(--gd);color:#fff">DSS 개정담당자</th>
+          <th style="background:var(--gm);color:#fff">테스트배치번호</th>
+          <th style="background:var(--gm);color:#fff">QA 검토담당자</th>
+          <th style="background:var(--gm);color:#fff">테스트배치번호</th>
+          <th style="background:var(--gm);color:#fff">CC 검토담당자</th>
+          <th style="background:var(--gm);color:#fff">테스트배치번호</th>
+          <th style="background:var(--gm);color:#fff">TO 검토담당자</th>
+          <th style="background:var(--or);color:#fff">검토</th>
+          <th style="background:var(--or);color:#fff">승인(EBR)</th>
+          <th style="background:var(--or);color:#fff">승인(EDMS)</th>
+          <th style="background:var(--or);color:#fff">발효(EBR)</th>
+        </tr>
+      </thead>
+      <tbody id="sc-body"></tbody>
+    </table>
+  </div>
+  <div style="background:#fff;border-radius:10px;border:1px solid var(--bo);overflow:hidden;box-shadow:var(--sh)">
+    <div style="background:var(--navy2);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.4rem">
+      <span style="font-size:13px;font-weight:600;color:#fff">변경관리 &amp; CAPA 목록</span>
+      <div style="display:flex;gap:.5rem;align-items:center">
+        <button class="bs" onclick="sortCapa()">정렬</button>
+        <button class="btn bsm bp author-only hidden" onclick="addCapa()">+ 항목 추가</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="ct">
+        <thead><tr>
+          <th style="width:175px">변경관리 &amp; CAPA No.</th>
+          <th>Summary / Description</th>
+          <th style="width:330px">관련 문서</th>
+          <th class="author-only hidden" style="width:55px">삭제</th>
+        </tr></thead>
+        <tbody id="ca-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 작성하기 -->
+<div id="write-view" class="hidden">
+  <div class="wh"><h2 id="wv-title">개정 내용 작성</h2><div class="wm" id="wv-meta"></div></div>
+  <div class="dts" id="wr-tabs"></div>
+  <div class="rc2">
+    <div class="rch">
+      <h3>개정 내용 입력 (Revision History)</h3>
+      <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+        <button class="bai" onclick="openBulkAI()">AI 전체생성</button>
+        <span id="wv-cb" style="font-size:11px;background:rgba(255,255,255,.15);color:#fff;padding:3px 10px;border-radius:4px;font-family:'IBM Plex Mono',monospace"></span>
+      </div>
+    </div>
+    <div style="padding:1rem">
+      <div id="wv-cbar" style="background:var(--yb);border:1px solid #fce08a;border-radius:6px;padding:.6rem 1rem;margin-bottom:1rem;font-size:11px;color:var(--t2)"></div>
+      <div style="overflow-x:auto">
+        <table class="rt">
+          <thead><tr>
+            <th style="width:100px">EBR Step No.<br><button class="bs" onclick="sortRevRows()" style="margin-top:3px">정렬</button></th>
+            <th style="width:170px">Before Change</th>
+            <th style="width:170px">After Change</th>
+            <th style="width:140px;background:#fff0d0;color:#7a4f00">간단한 RH 작성<br><span style="font-size:9px;opacity:.7">(AI 힌트용)</span></th>
+            <th style="width:50px;background:#e8d5f5;color:#4a0080">AI</th>
+            <th>Justification</th>
+            <th style="width:140px">변경관리 및 CAPA</th>
+            <th style="width:65px">작성자</th>
+            <th style="width:45px">삭제</th>
+          </tr></thead>
+          <tbody id="wr-body"></tbody>
+        </table>
+      </div>
+      <button class="btn bsm bp" onclick="addRow()" style="margin-top:.75rem">+ 행 추가</button>
+    </div>
+  </div>
+  <div class="brow">
+    <button class="btn" onclick="goMain()">메인으로</button>
+    <button class="btn bp" onclick="goMain()">저장 후 메인으로</button>
+  </div>
+</div>
+
+<!-- 검토하기 -->
+<div id="review-view" class="hidden">
+  <div class="rvh"><h2 id="rv-title">문서 검토</h2><div class="dm" id="rv-meta"></div></div>
+  <div class="dts" id="rv-tabs"></div>
+  <div class="rc2">
+    <div class="rch">
+      <h3>개정 내용 확인 및 검토</h3>
+      <span id="rv-cb" style="font-size:11px;background:rgba(255,255,255,.15);color:#fff;padding:3px 10px;border-radius:4px;font-family:'IBM Plex Mono',monospace"></span>
+    </div>
+    <div style="padding:1rem">
+      <div id="rv-cbar" style="background:var(--yb);border:1px solid #fce08a;border-radius:6px;padding:.6rem 1rem;margin-bottom:1rem;font-size:11px;color:var(--t2)"></div>
+      <div style="overflow-x:auto">
+        <table class="rt">
+          <thead><tr>
+            <th style="width:80px">EBR Step No.</th>
+            <th style="width:185px">Before Change</th>
+            <th style="width:185px">After Change</th>
+            <th>Justification</th>
+            <th style="width:120px">변경관리 및 CAPA</th>
+            <th style="width:65px">작성자</th>
+            <th style="width:130px">검토 확인</th>
+          </tr></thead>
+          <tbody id="rv-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="cs2">
+    <div class="csh"><h3>추가 코멘트</h3><span id="cm-cnt" style="font-size:11px;background:rgba(255,255,255,.15);color:#fff;padding:3px 8px;border-radius:4px">0개</span></div>
+    <div style="overflow-x:auto">
+      <table class="cmtbl">
+        <thead><tr>
+          <th style="width:90px">EBR Step No.</th><th>코멘트</th>
+          <th style="width:85px">요청자</th><th style="width:130px">반영된 테스트 배치번호</th>
+          <th style="width:75px">진행상황</th><th style="width:45px">삭제</th>
+        </tr></thead>
+        <tbody id="cm-body"></tbody>
+      </table>
+    </div>
+    <div class="acf">
+      <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:.5rem">새 코멘트 추가</div>
+      <div class="fr5">
+        <div><label>Step No.</label><input type="text" id="n-step" placeholder="2.3.1"></div>
+        <div><label>코멘트 내용</label><input type="text" id="n-cmt" placeholder="코멘트를 입력하세요..."></div>
+        <div><label>요청자</label><input type="text" id="n-req" readonly></div>
+        <div><label>배치번호</label><input type="text" id="n-bat" placeholder="배치번호" class="author-only-input" readonly></div>
+        <div style="padding-top:16px"><button class="btn bb bsm" onclick="addCmt()">등록</button></div>
+      </div>
+    </div>
+  </div>
+  <div class="brow"><button class="btn" onclick="goMain()">메인으로</button></div>
+</div>
+<div id="toast"></div>
+
+<script>
+const GH_OWNER='hpaul1024h-cmyk',GH_REPO='EBR-RH-',GH_BRANCH='main',GH_FILE='data.json';
+const AUTHOR_PW='dss1234',SAVE_PW='ebr2026!';
+
+function getTok(){return localStorage.getItem('ebr_tok')||'';}
+function setTok(t){localStorage.setItem('ebr_tok',t);}
+
+const ID=[
+  {doc:'200K-0002',ver:'4.0',title:'[200K] Cell Expansion in 120 L Bioreactor(s)',dss:'허석현',reviewers:{qa:['유상민'],cc:['김아영'],to:['신나라']},td:'5//7'},
+  {doc:'200K-0005',ver:'4.0',title:'[200K] Harvest and Recovery',dss:'허석현',reviewers:{qa:['정웅민'],cc:['서지욱','조탁현'],to:['조민']},td:'05월 14일'},
+  {doc:'200K-1008',ver:'4.0',title:'[200K] 2 M NaOH Stock Solution in V-1120 (920 kg)',dss:'허석현',reviewers:{qa:['성유잔'],cc:['이현중','김효담'],to:['조민']},td:'05월 21일'},
+  {doc:'200K-1009',ver:'4.0',title:'[200K] 2M NaOH Stock Solution (300 kg)',dss:'허석현',reviewers:{qa:['성유잔'],cc:['이현중','김효담'],to:['조민']},td:'05월 28일'},
+  {doc:'200K-0004',ver:'6.0',title:'[200K] Production in 15000L Bioreactor(s)',dss:'허석현',reviewers:{qa:['정웅민'],cc:['서지욱','조탁현'],to:['조민']},td:'06월 04일'},
+  {doc:'200K-1001',ver:'4.0',title:'[200K] Growth Medium (30kg)',dss:'허석현',reviewers:{qa:['정수연'],cc:['이채영'],to:['조민']},td:'06월 11일'},
+];
+const IC=[
+  {no:'CC2-2025-255 (PR86985)',desc:'[Addendum of CC2-2024-619] Addition of FIT method using 30inchx6 round housing by using Reference tank',rd:['200K-0004']},
+  {no:'CC2-2025-773 (PR93897) / CC2-2025-1333 (PR100519)',desc:'Change of product name and concentration specification for 10% ADCF Antifoam Solution',rd:['200K-0004']},
+  {no:'CC2-2025-1238 (PR99404)',desc:'Introduction of new sampling bag (MicroDigital) for DS manufacturing process',rd:['200K-0002','200K-0003','200K-0004']},
+  {no:'CC2-2026-001 (PR106881)',desc:'Dualization of chemical materials used in DS manufacturing with Kirsch pharma as an additional supplier.',rd:['200K-1004','200K-1007']},
+  {no:'CC2-2026-051 (PR107551)',desc:'Permanent Change of Production Lot Size, Media Fill Volume, Bottom Aeration in 200K USP',rd:['200K-0004','200K-1004']},
+  {no:'CC2-2026-024 (PR107255)',desc:'[Addendum of CC2-2025-1297] Permanent Change of Harvest Depth Filter Usage Type in 200K Upstream Process',rd:['200K-0005']},
+];
+
+let S=null,ghSHA=null,isAuth=false,curView='main';
+
+function initS(d){
+  if(d){
+    if(!d.dm) d.dm=JSON.parse(JSON.stringify(ID));
+    if(!d.cl) d.cl=JSON.parse(JSON.stringify(IC));
+    d.dm.forEach(m=>{if(!d.docs[m.doc]) d.docs[m.doc]={sc:{b1:'',b2:'',b3:'',rv:'',aebr:'',aedms:'',rel:''},rows:[],cmts:[],chk:{}};});
+    return d;
+  }
+  const docs={};
+  ID.forEach(m=>{docs[m.doc]={sc:{b1:'',b2:'',b3:'',rv:'',aebr:'',aedms:'',rel:''},rows:[],cmts:[],chk:{}};});
+  return {docs,dm:JSON.parse(JSON.stringify(ID)),cl:JSON.parse(JSON.stringify(IC)),oof:'06월 03일',mode:'viewer',user:'',cur:ID[0].doc,ls:'',lsb:''};
+}
+
+function e(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function now(){const n=new Date();return`${n.getMonth()+1}/${n.getDate()} ${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`;}
+function iso(){return new Date().toISOString().slice(0,16).replace('T',' ');}
+function toast(m,d=2500){const t=document.getElementById('toast');t.textContent=m;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',d);}
+function chp(c,m){const el=document.getElementById('sv-chip');el.className='sc '+c;el.textContent=m;el.classList.remove('hidden');}
+function canEd(a){return S.user&&S.user===a;}
+function allRvs(){return[...new Set(S.dm.flatMap(m=>[...m.reviewers.qa,...m.reviewers.cc,...m.reviewers.to]))];}
+
+// 문서별 관련 CAPA 반환
+function getDocCapas(docId){return S.cl.filter(c=>c.rd.includes(docId));}
+
+// CC/CAPA 드롭다운
+function capaDD(docId,ri,curVal){
+  const opts=getDocCapas(docId).map(c=>`<option value="${e(c.no)}" ${curVal===c.no?'selected':''}>${e(c.no)}</option>`).join('');
+  return `<select style="font-size:11px;width:100%" onchange="setCapaRef('${docId}',${ri},this.value)"><option value="">-- 선택 --</option>${opts}</select>`;
+}
+
+// CC/CAPA 선택 시 Justification 앞에 번호 자동 삽입
+function setCapaRef(docId,ri,val){
+  S.docs[docId].rows[ri].capaRef=val;
+  let just=S.docs[docId].rows[ri].just||'';
+  // 기존 "According to ... ," 구문 제거
+  just=just.replace(/^According to .+?,\s*/,'').trim();
+  if(val) S.docs[docId].rows[ri].just=`According to ${val}, ${just}`;
+  else S.docs[docId].rows[ri].just=just;
+  renderWriteRows(docId);
+}
+
+// 정렬
+function parseDocN(s){const m=s.match(/(\d+)$/);return m?parseInt(m[1]):0;}
+function sortDocs(){S.dm.sort((a,b)=>parseDocN(a.doc)-parseDocN(b.doc));renderSched();toast('문서번호 오름차순 정렬');}
+function parseCCN(s){const f=s.split('\n')[0].trim();const m=f.match(/CC\d+-(\d{4})-(\d+)/);return m?parseInt(m[1])*10000+parseInt(m[2]):99999999;}
+function sortCapa(){S.cl.sort((a,b)=>parseCCN(a.no)-parseCCN(b.no));renderCapa();toast('CC/CAPA 오름차순 정렬');}
+function parseSt(s){if(!s)return[9999,9999,9999];return s.trim().split('.').map(n=>{const v=parseInt(n);return isNaN(v)?9999:v;});}
+function cmpSt(a,b){const pa=parseSt(a.step),pb=parseSt(b.step);for(let i=0;i<Math.max(pa.length,pb.length);i++){const d=(pa[i]||0)-(pb[i]||0);if(d)return d;}return 0;}
+function sortRevRows(){if(!S.cur)return;S.docs[S.cur].rows.sort(cmpSt);renderWriteRows(S.cur);toast('Step No. 오름차순 정렬');}
+
+// 토큰
+function showTok(cb){document.getElementById('tok-mod').classList.remove('hidden');document.getElementById('tok-in').value='';document.getElementById('tok-er').style.display='none';window._tokCb=cb;setTimeout(()=>document.getElementById('tok-in').focus(),100);}
+function saveTok(){const t=document.getElementById('tok-in').value.trim();if(!t){document.getElementById('tok-er').style.display='block';return;}setTok(t);document.getElementById('tok-mod').classList.add('hidden');toast('토큰 저장됨');if(window._tokCb){window._tokCb();window._tokCb=null;}}
+
+// 저장 비번
+function initSave(){if(!S.user){toast('먼저 로그인하세요.');return;}document.getElementById('spw-mod').classList.remove('hidden');document.getElementById('spw-in').value='';document.getElementById('spw-er').style.display='none';setTimeout(()=>document.getElementById('spw-in').focus(),100);}
+function closeSpw(){document.getElementById('spw-mod').classList.add('hidden');}
+function chkSpw(){const pw=document.getElementById('spw-in').value;if(pw!==SAVE_PW){document.getElementById('spw-er').style.display='block';document.getElementById('spw-in').value='';return;}closeSpw();if(!getTok()){showTok(()=>doSave());return;}doSave();}
+
+// GitHub
+async function loadGH(){
+  chp('sin','불러오는 중...');
+  try{
+    const url=`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`;
+    const hd={'Accept':'application/vnd.github.v3+json'};const tok=getTok();if(tok) hd['Authorization']=`token ${tok}`;
+    const res=await fetch(url,{headers:hd});
+    if(res.status===404){S=initS(null);chp('sok','새 파일');toast('새 데이터로 시작합니다.');}
+    else if(res.ok){const j=await res.json();ghSHA=j.sha;S=initS(JSON.parse(atob(j.content.replace(/\n/g,''))));chp('sok',S.ls||'로드완료');if(S.lsb) toast(`마지막 저장: ${S.lsb} (${S.ls})`);}
+    else throw new Error(res.status);
+  }catch(ex){S=initS(null);chp('ser','오프라인');toast('GitHub 연결 실패 — 오프라인 모드',3000);}
+  renderMain();applyMode();
+}
+async function doSave(){
+  chp('sin','저장 중...');S.ls=iso();S.lsb=S.user;
+  const content=btoa(unescape(encodeURIComponent(JSON.stringify(S,null,2))));
+  const body={message:`update: ${S.user} @ ${S.ls}`,content,branch:GH_BRANCH};if(ghSHA) body.sha=ghSHA;
+  try{
+    const res=await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`,
+      {method:'PUT',headers:{'Authorization':`token ${getTok()}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
+    if(res.ok){const j=await res.json();ghSHA=j.content.sha;chp('sok',S.ls);toast(`저장 완료 (${S.lsb})`);}
+    else if(res.status===401){setTok('');toast('토큰 오류. 다시 입력하세요.',3000);showTok(()=>doSave());}
+    else if(res.status===409){toast('충돌: 새로고침 후 다시 시도하세요.',4000);chp('ser','충돌');}
+    else{const ex=await res.json();throw new Error(ex.message);}
+  }catch(ex){chp('ser','저장실패');toast('저장 실패: '+ex.message,3000);}
+}
+
+// 모드/인증
+function showPw(){document.getElementById('pw-mod').classList.remove('hidden');setTimeout(()=>document.getElementById('au-name').focus(),100);}
+function closePw(){document.getElementById('pw-mod').classList.add('hidden');document.getElementById('au-pw').value='';document.getElementById('pw-er').style.display='none';}
+function chkPw(){
+  const nm=document.getElementById('au-name').value;const pw=document.getElementById('au-pw').value;
+  if(!nm){toast('이름을 선택하세요.');return;}
+  if(pw!==AUTHOR_PW){document.getElementById('pw-er').style.display='block';document.getElementById('au-pw').value='';return;}
+  isAuth=true;S.mode='author';S.user=nm;closePw();applyMode();toast(`${nm}님, 작성자 모드입니다.`);
+  if(curView==='write') renderWriteView(S.cur);else if(curView==='review') renderReviewView(S.cur);else renderMain();
+}
+function logout(){isAuth=false;S.mode='viewer';S.user='';applyMode();toast('로그아웃');goMain();}
+function applyMode(){
+  document.getElementById('btn-au').classList.toggle('hidden',isAuth||!!S.user);
+  document.getElementById('btn-lo').classList.toggle('hidden',!S.user);
+  const ch=document.getElementById('u-chip');
+  if(S.user){ch.textContent=(isAuth?'작성자 ':'')+S.user;ch.className='uc '+(isAuth?'ua':'ur');ch.classList.remove('hidden');}
+  else ch.classList.add('hidden');
+  document.querySelectorAll('.author-only').forEach(el=>el.classList.toggle('hidden',!isAuth));
+  document.querySelectorAll('.author-only-input').forEach(el=>el.readOnly=!isAuth);
+  document.querySelectorAll('.schedule-input').forEach(el=>el.readOnly=!isAuth);
+}
+
+// 메인
+function goMain(){curView='main';['main-view','write-view','review-view'].forEach((id,i)=>document.getElementById(id).classList.toggle('hidden',i!==0));renderMain();}
+function renderMain(){renderSched();renderCapa();applyMode();}
+
+function renderSched(){
+  const tb=document.getElementById('sc-body');
+  const oof=(i)=>i===0?`<td class="ti" rowspan="${S.dm.length}" style="vertical-align:middle;text-align:center">${isAuth?`<input class="schedule-input" value="${e(S.oof)}" oninput="S.oof=this.value" style="min-width:75px">`:e(S.oof)}</td>`:'';
+  tb.innerHTML=S.dm.map((m,i)=>{
+    const d=S.docs[m.doc]||{sc:{},rows:[],cmts:[],chk:{}};const sc=d.sc||{};
+    const hr=d.rows.length>0;
+    const inp=(f,v,p)=>isAuth?`<input class="schedule-input" value="${e(v||'')}" oninput="setSc('${m.doc}','${f}',this.value)" placeholder="${p}" style="min-width:60px">`:e(v||'');
+    return `<tr>
+      <td class="dn">${m.doc}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;text-align:center;color:var(--t2)">${m.ver}</td>
+      <td style="font-size:12px;min-width:185px">${m.title}</td>
+      <td style="text-align:center;font-size:12px;font-weight:500">${m.dss}</td>
+      <td class="ti">${inp('b1',sc.b1,'배치번호')}</td>
+      <td style="text-align:center">${m.reviewers.qa.map(r=>`<span class="rch2">${r}</span>`).join('')}</td>
+      <td class="ti">${inp('b2',sc.b2,'배치번호')}</td>
+      <td style="text-align:center">${m.reviewers.cc.map(r=>`<span class="rch2" style="background:var(--gl);color:var(--gd)">${r}</span>`).join('')}</td>
+      <td class="ti">${inp('b3',sc.b3,'배치번호')}</td>
+      <td style="text-align:center">${m.reviewers.to.map(r=>`<span class="rch2" style="background:#fff0e0;color:#c0522b">${r}</span>`).join('')}</td>
+      ${oof(i)}
+      <td class="ti">${inp('rv',sc.rv||m.td,'날짜')}</td>
+      <td class="ti">${inp('aebr',sc.aebr,'날짜')}</td>
+      <td class="ti">${inp('aedms',sc.aedms,'날짜')}</td>
+      <td class="ti">${inp('rel',sc.rel,'날짜')}</td>
+      <td style="text-align:center;padding:4px 6px"><button class="bw${isAuth?'':' bwd'}" onclick="${isAuth?`openWrite('${m.doc}')`:''}">${hr?`작성됨(${d.rows.length})`:'작성하기'}</button></td>
+      <td style="text-align:center;padding:4px 6px"><button class="brv" onclick="openRvModal('${m.doc}')">검토하기</button></td>
+    </tr>`;
+  }).join('');
+}
+function setSc(d,f,v){S.docs[d].sc[f]=v;}
+
+function renderCapa(){
+  document.getElementById('ca-body').innerHTML=S.cl.map((c,i)=>`
+    <tr>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--bl)">${isAuth?`<input value="${e(c.no)}" oninput="S.cl[${i}].no=this.value" style="font-family:'IBM Plex Mono',monospace;font-size:11px;border:none;background:transparent;width:100%">`:e(c.no)}</td>
+      <td style="font-size:12px;line-height:1.5">${isAuth?`<textarea oninput="S.cl[${i}].desc=this.value" style="min-height:40px;font-size:12px">${e(c.desc)}</textarea>`:e(c.desc)}</td>
+      <td>${c.rd.map((d,di)=>`<span class="rdc">${d}${isAuth?`<span onclick="rmRD(${i},${di})" style="cursor:pointer;margin-left:3px;opacity:.6">x</span>`:''}</span>`).join('')}
+        ${isAuth?`<input placeholder="추가" onkeydown="if(event.key==='Enter'){addRD(${i},this.value);this.value=''}" style="width:90px;font-size:11px;display:inline-block;margin-top:3px">`:''}</td>
+      <td class="author-only hidden" style="text-align:center"><button class="btn bsm bd" onclick="rmCapa2(${i})">삭제</button></td>
+    </tr>`).join('');
+}
+function addRD(i,v){if(v.trim()){S.cl[i].rd.push(v.trim());renderCapa();}}
+function rmRD(i,di){S.cl[i].rd.splice(di,1);renderCapa();}
+function addCapa(){S.cl.push({no:'',desc:'',rd:[]});renderCapa();}
+function rmCapa2(i){if(confirm('삭제?')){S.cl.splice(i,1);renderCapa();}}
+
+// 작성하기
+function openWrite(docId){if(!isAuth){toast('작성자 모드에서만 가능합니다.');return;}S.cur=docId;curView='write';document.getElementById('main-view').classList.add('hidden');document.getElementById('write-view').classList.remove('hidden');document.getElementById('review-view').classList.add('hidden');renderWriteView(docId);}
+function renderWriteView(docId){
+  const m=S.dm.find(x=>x.doc===docId);
+  document.getElementById('wv-title').textContent=m.title;
+  document.getElementById('wv-meta').innerHTML=`<span>문서번호<b>${m.doc}</b></span><span>버전<b>v${m.ver}</b></span><span>작성자<b>${S.user}</b></span>`;
+  document.getElementById('wr-tabs').innerHTML=S.dm.map(mm=>`<button class="dt ${mm.doc===docId?'active':''}" onclick="openWrite('${mm.doc}')">${mm.doc}</button>`).join('');
+  const rc=getDocCapas(docId);
+  document.getElementById('wv-cb').textContent=`CC/CAPA ${rc.length}건`;
+  document.getElementById('wv-cbar').innerHTML=rc.length>0?rc.map(c=>`<span style="font-weight:600;margin-right:8px">${c.no}</span>`).join(''):'<span style="color:#999">관련 CC/CAPA 없음 (N/A)</span>';
+  renderWriteRows(docId);
+}
+function renderWriteRows(docId){
+  const rows=S.docs[docId].rows;const tb=document.getElementById('wr-body');
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:var(--t3)">아래 버튼으로 개정 항목을 추가하세요.</td></tr>`;return;}
+  tb.innerHTML=rows.map((r,i)=>{
+    const me=canEd(r.author);
+    const sc=me?`<input value="${e(r.step||'')}" oninput="setRow('${docId}',${i},'step',this.value)" style="width:75px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px">`:e(r.step||'');
+    const bc=me?`<textarea oninput="setRow('${docId}',${i},'before',this.value)" style="min-height:55px;font-size:12px">${e(r.before||'')}</textarea>`:`<div style="font-size:12px;line-height:1.5">${e(r.before||'N/A')}</div>`;
+    const ac=me?`<textarea oninput="setRow('${docId}',${i},'after',this.value)" style="min-height:55px;font-size:12px">${e(r.after||'')}</textarea>`:`<div style="font-size:12px;line-height:1.5">${e(r.after||'')}</div>`;
+    const hc=me?`<textarea oninput="setRow('${docId}',${i},'hint',this.value)" style="min-height:55px;font-size:11px" placeholder="작성 의도 메모">${e(r.hint||'')}</textarea>`:`<div style="font-size:11px;color:var(--t2)">${e(r.hint||'')}</div>`;
+    const jc=me?`<textarea oninput="setRow('${docId}',${i},'just',this.value)" style="min-height:55px;font-size:12px">${e(r.just||'')}</textarea>`:`<div style="font-size:11px;line-height:1.5;color:var(--t2)">${e(r.just||'')}</div>`;
+    const cc=me?capaDD(docId,i,r.capaRef||''):e(r.capaRef||'');
+    const aib=me?`<button class="bai" onclick="openBulkAI(${i})">AI</button>`:`<span style="font-size:10px;color:var(--t3)">-</span>`;
+    const db=me?`<button class="btn bsm bd" onclick="rmRow('${docId}',${i})">x</button>`:`<span style="font-size:10px;color:var(--t3)">-</span>`;
+    return `<tr>
+      <td class="ts">${sc}</td><td class="tb">${bc}</td><td class="ta">${ac}</td><td class="thint">${hc}</td>
+      <td style="text-align:center;vertical-align:middle;background:#f5e8ff">${aib}</td>
+      <td class="tj">${jc}</td><td class="tcref">${cc}</td>
+      <td style="text-align:center;font-size:11px;color:var(--t2);background:#fafbfc;vertical-align:middle">${e(r.author||'')}</td>
+      <td style="text-align:center;background:#fafbfc;vertical-align:middle">${db}</td>
+    </tr>`;
+  }).join('');
+}
+function setRow(d,i,f,v){S.docs[d].rows[i][f]=v;}
+function addRow(){S.docs[S.cur].rows.push({step:'',before:'',after:'',hint:'',just:'',capaRef:'',author:S.user,cmts:[]});renderWriteRows(S.cur);}
+function rmRow(d,i){S.docs[d].rows.splice(i,1);renderWriteRows(d);}
+
+// Bulk AI
+function openBulkAI(){
+  const d=S.cur;const rows=S.docs[d].rows;if(!rows.length){toast('먼저 행을 추가하세요.');return;}
+  const lines=rows.map((r,i)=>`[${i+1}]\n  Step No.: ${r.step||'N/A'}\n  Before: ${(r.before||'N/A').trim()}\n  After: ${(r.after||'').trim()||'N/A'}${r.capaRef?`\n  CC/CAPA: ${r.capaRef}`:''}${r.hint?`\n  Note: ${r.hint}`:''}`).join('\n\n');
+  const p=`You are a pharmaceutical documentation specialist writing Justification fields for an EBR revision history.\n\nFor each item below, write a concise professional Justification in English (1-3 sentences).\n\nRules:\n- Formal GMP/pharmaceutical language\n- If a CC/CAPA number is provided for an item, the justification MUST start with "According to [CC/CAPA number], "\n- Use Note as context when provided\n- Output format MUST be exactly:\n[1] <justification>\n[2] <justification>\n...\n[${rows.length}] <justification>\n\nItems:\n${lines}`;
+  document.getElementById('ai-prompt').textContent=p;
+  document.getElementById('ai-result').value='';
+  document.getElementById('p-ok').style.display='none';document.getElementById('p-er').style.display='none';
+  document.getElementById('cp-btn').textContent='복사';document.getElementById('cp-btn').classList.remove('copied');
+  document.getElementById('ai-mod').classList.remove('hidden');
+}
+function cpPrompt(){
+  const t=document.getElementById('ai-prompt').textContent;
+  navigator.clipboard.writeText(t).then(()=>{const b=document.getElementById('cp-btn');b.textContent='복사됨!';b.classList.add('copied');setTimeout(()=>{b.textContent='복사';b.classList.remove('copied');},2000);})
+  .catch(()=>{const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('복사되었습니다!');});
+}
+function parseApply(){
+  const d=S.cur;const rows=S.docs[d].rows;const raw=document.getElementById('ai-result').value.trim();
+  document.getElementById('p-ok').style.display='none';document.getElementById('p-er').style.display='none';
+  if(!raw){toast('AI 답변을 먼저 붙여넣으세요.');return;}
+  const parsed={};const re=/\[(\d+)\]\s*([\s\S]*?)(?=\[\d+\]|$)/g;let m;
+  while((m=re.exec(raw))!==null){const idx=parseInt(m[1])-1;const t=m[2].trim();if(t) parsed[idx]=t;}
+  const cnt=Object.keys(parsed).length;
+  if(!cnt){document.getElementById('p-er').textContent='파싱 실패: [1] ... [2] ... 형식인지 확인하세요.';document.getElementById('p-er').style.display='block';return;}
+  let applied=0,skipped=0;
+  Object.entries(parsed).forEach(([is,t])=>{const i=parseInt(is);if(i>=0&&i<rows.length){if(canEd(rows[i].author)){rows[i].just=t;applied++;}else skipped++;}});
+  renderWriteRows(d);document.getElementById('ai-mod').classList.add('hidden');
+  let msg=`${applied}개 행에 Justification 입력 완료`;if(skipped>0) msg+=` (${skipped}개 타인 작성 제외)`;if(cnt<rows.length) msg+=` / ${rows.length-cnt}개 누락`;toast(msg,3000);
+}
+
+// 검토자 모달
+function openRvModal(docId){
+  S.cur=docId;
+  document.getElementById('rv-list').innerHTML=allRvs().map(r=>`<button class="btn bb" style="font-size:13px;padding:8px 16px" onclick="enterRv('${r}','${docId}')">${r}</button>`).join('')
+    +`<button class="btn" style="font-size:13px;padding:8px 16px" onclick="enterRv('__c__','${docId}')">기타</button>`;
+  document.getElementById('rv-mod').classList.remove('hidden');
+}
+function enterRv(nm,docId){if(nm==='__c__'){const n=prompt('이름:');if(!n)return;nm=n.trim();}S.user=nm;isAuth=false;S.mode='viewer';document.getElementById('rv-mod').classList.add('hidden');applyMode();document.getElementById('n-req').value=nm;openRvDoc(docId);}
+
+// 검토화면
+function openRvDoc(docId){S.cur=docId;curView='review';document.getElementById('main-view').classList.add('hidden');document.getElementById('write-view').classList.add('hidden');document.getElementById('review-view').classList.remove('hidden');renderReviewView(docId);}
+function renderReviewView(docId){
+  const m=S.dm.find(x=>x.doc===docId);
+  document.getElementById('rv-title').textContent=m.title;
+  document.getElementById('rv-meta').innerHTML=`<span>문서번호<b>${m.doc}</b></span><span>버전<b>v${m.ver}</b></span><span>검토자<b>${S.user||'-'}</b></span>`;
+  document.getElementById('rv-tabs').innerHTML=S.dm.map(mm=>{
+    const hc=S.docs[mm.doc]&&(S.docs[mm.doc].cmts.length>0||S.docs[mm.doc].rows.some(r=>(r.cmts||[]).length>0));
+    return `<button class="dt ${mm.doc===docId?'active':''} ${hc?'hc':''}" onclick="openRvDoc('${mm.doc}')">${mm.doc}</button>`;
+  }).join('');
+  const rc=getDocCapas(docId);
+  document.getElementById('rv-cb').textContent=`CC/CAPA ${rc.length}건`;
+  document.getElementById('rv-cbar').innerHTML=rc.length>0?rc.map(c=>`<span style="font-weight:600;margin-right:8px">${c.no}</span>`).join(''):'<span style="color:#999">관련 CC/CAPA 없음 (N/A)</span>';
+  renderRvRows(docId);renderCmts(docId);applyMode();
+}
+function renderRvRows(docId){
+  const rows=S.docs[docId].rows;const m=S.dm.find(x=>x.doc===docId);
+  const rvs=[...m.reviewers.qa,...m.reviewers.cc,...m.reviewers.to];
+  const tb=document.getElementById('rv-body');
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--t3)">아직 작성된 개정 내용이 없습니다.</td></tr>`;return;}
+  tb.innerHTML=rows.map((r,i)=>{
+    if(!S.docs[docId].chk[i]) S.docs[docId].chk[i]={};
+    const ckg=rvs.map(rv=>{const chk=S.docs[docId].chk[i][rv]||false;const mine=S.user===rv;return `<div class="cki"><input type="checkbox" ${chk?'checked':''} ${!mine?'disabled':''} onchange="togChk('${docId}',${i},'${rv}',this.checked)"><span class="ckn ${mine?'me':''}">${rv}</span></div>`;}).join('');
+    const coms=r.cmts||[];
+    const citems=coms.map((c,ci)=>{
+      const cd=S.user===c.author;
+      const reps=(c.replies||[]).map(rep=>`<div class="icri">&#128172; <b>${e(rep.author)}</b> <span style="color:var(--t3);font-family:'IBM Plex Mono',monospace;font-size:10px">${e(rep.time)}</span><br>${e(rep.text)}</div>`).join('');
+      return `<div class="ic2 ${c.isAuth?'ica':''}">
+        <div class="icm"><span class="ican">${e(c.author)}</span><span class="icr ${c.isAuth?'icra':'icrr'}">${c.isAuth?'작성자':'검토자'}</span><span class="ict">${e(c.time)}</span></div>
+        <div class="icx">${e(c.text)}</div>
+        <div class="icas">
+          <button class="icb" onclick="togRF('rf-${docId}-${i}-${ci}')">답글</button>
+          ${cd?`<button class="icb del" onclick="delIC('${docId}',${i},${ci})">삭제</button>`:''}
+        </div>
+        <div class="icrs">${reps}</div>
+        <div id="rf-${docId}-${i}-${ci}" class="rif"><input id="rft-${docId}-${i}-${ci}" placeholder="답글..."><button class="btn bsm bb" onclick="addRep('${docId}',${i},${ci})">등록</button></div>
+      </div>`;
+    }).join('')||`<div style="font-size:11px;color:var(--t3)">댓글 없음</div>`;
+    return `
+    <tr>
+      <td class="ts">${e(r.step)}</td>
+      <td class="tb" style="font-size:12px;line-height:1.5">${e(r.before)||'N/A'}</td>
+      <td class="ta" style="font-size:12px;line-height:1.5">${e(r.after)||''}</td>
+      <td class="tj" style="font-size:11px;line-height:1.5">${e(r.just)||''}</td>
+      <td class="tcref">${e(r.capaRef)||''}</td>
+      <td style="text-align:center;font-size:11px;color:var(--t2);background:#fafbfc">${e(r.author||'')}</td>
+      <td style="background:#fafbfc;padding:6px 8px"><div class="ckg">${ckg}</div></td>
+    </tr>
+    <tr><td colspan="7" style="padding:0;border-top:none"><div class="rca"><div style="margin-bottom:.5rem">${citems}</div><div class="icf"><input id="ic-${docId}-${i}" placeholder="이 항목에 댓글..."><button class="btn bsm bb" onclick="addIC('${docId}',${i})">등록</button></div></div></td></tr>`;
+  }).join('');
+}
+function togChk(d,ri,rv,v){if(S.user!==rv){toast('본인 체크란만 수정할 수 있습니다.');return;}if(!S.docs[d].chk[ri]) S.docs[d].chk[ri]={};S.docs[d].chk[ri][rv]=v;toast(v?`${rv} 검토 확인`:`${rv} 확인 취소`);}
+function addIC(d,ri){const inp=document.getElementById(`ic-${d}-${ri}`);const t=inp.value.trim();if(!t){toast('댓글을 입력하세요.');return;}if(!S.user){toast('로그인하세요.');return;}if(!S.docs[d].rows[ri].cmts) S.docs[d].rows[ri].cmts=[];S.docs[d].rows[ri].cmts.push({author:S.user,text:t,isAuth,time:now(),replies:[]});inp.value='';renderRvRows(d);toast('댓글 등록 완료.');}
+function delIC(d,ri,ci){if(S.user!==S.docs[d].rows[ri].cmts[ci].author){toast('본인 댓글만 삭제할 수 있습니다.');return;}if(confirm('삭제?')){S.docs[d].rows[ri].cmts.splice(ci,1);renderRvRows(d);}}
+function togRF(id){const el=document.getElementById(id);if(el)el.style.display=el.style.display==='flex'?'none':'flex';}
+function addRep(d,ri,ci){if(!S.user){toast('로그인하세요.');return;}const inp=document.getElementById(`rft-${d}-${ri}-${ci}`);const t=inp.value.trim();if(!t)return;if(!S.docs[d].rows[ri].cmts[ci].replies) S.docs[d].rows[ri].cmts[ci].replies=[];S.docs[d].rows[ri].cmts[ci].replies.push({author:S.user,text:t,time:now()});inp.value='';renderRvRows(d);}
+
+// 하단 코멘트
+function renderCmts(docId){
+  const rows=S.docs[docId].cmts;document.getElementById('cm-cnt').textContent=rows.length+'개';
+  const tb=document.getElementById('cm-body');
+  if(!rows.length){tb.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:1rem;color:var(--t3)">아직 코멘트가 없습니다.</td></tr>`;return;}
+  tb.innerHTML=rows.map((c,i)=>{
+    const bc=isAuth?`<input value="${e(c.batch||'')}" oninput="S.docs['${docId}'].cmts[${i}].batch=this.value" style="font-size:11px" placeholder="배치번호">`:e(c.batch||'');
+    const pb=c.prog==='완료'?`<span class="pd">완료</span>`:c.prog==='진행중'?`<span class="pw2">진행중</span>`:`<span class="pp">대기</span>`;
+    const pc=isAuth?`<select style="font-size:11px;padding:3px 6px;border-radius:4px" onchange="setCmtProg('${docId}',${i},this.value)"><option ${!c.prog||c.prog==='대기'?'selected':''}>대기</option><option ${c.prog==='진행중'?'selected':''}>진행중</option><option ${c.prog==='완료'?'selected':''}>완료</option></select>`:pb;
+    const cd=S.user===c.req||isAuth;
+    const reps=(c.replies||[]).map(r=>`<div style="margin-left:1rem;margin-top:.4rem;padding:.4rem .6rem;background:#f0f4ff;border-radius:5px;border-left:2px solid var(--ac);font-size:11px">&#128172; <b>${e(r.author)}</b> · <span style="color:var(--t3);font-family:'IBM Plex Mono',monospace">${e(r.time)}</span><br>${e(r.text)}</div>`).join('');
+    return `<tr>
+      <td style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600">${e(c.step)}</td>
+      <td><div style="font-size:12px;line-height:1.5">${e(c.text)}</div>${reps}
+        <div style="margin-top:.4rem;display:flex;gap:.4rem"><input id="cr-${docId}-${i}" placeholder="답글..." style="font-size:11px;flex:1"><button class="btn bsm bb" onclick="addCmtRep('${docId}',${i})">답글</button></div></td>
+      <td style="font-size:12px;font-weight:500;text-align:center">${e(c.req)}</td>
+      <td>${bc}</td><td>${pc}</td>
+      <td style="text-align:center">${cd?`<button class="btn bsm bd" onclick="rmCmt('${docId}',${i})">x</button>`:''}</td>
+    </tr>`;
+  }).join('');
+}
+function addCmt(){if(!S.user){toast('먼저 로그인하세요.');return;}const step=document.getElementById('n-step').value.trim();const text=document.getElementById('n-cmt').value.trim();const batch=document.getElementById('n-bat').value.trim();if(!text){toast('코멘트 내용을 입력하세요.');return;}S.docs[S.cur].cmts.push({step,text,req:S.user,batch,prog:'대기',time:now(),replies:[]});document.getElementById('n-step').value='';document.getElementById('n-cmt').value='';document.getElementById('n-bat').value='';renderCmts(S.cur);toast('코멘트 등록 완료.');}
+function rmCmt(d,i){if(confirm('삭제?')){S.docs[d].cmts.splice(i,1);renderCmts(d);}}
+function setCmtProg(d,i,v){S.docs[d].cmts[i].prog=v;renderCmts(d);}
+function addCmtRep(d,i){if(!S.user){toast('로그인하세요.');return;}const inp=document.getElementById(`cr-${d}-${i}`);const t=inp.value.trim();if(!t)return;if(!S.docs[d].cmts[i].replies) S.docs[d].cmts[i].replies=[];S.docs[d].cmts[i].replies.push({author:S.user,text:t,time:now()});inp.value='';renderCmts(d);}
+
+// 초기화
+document.getElementById('pw-mod').classList.add('hidden');
+document.getElementById('btn-au').classList.remove('hidden');
+loadGH();
+</script>
+</body>
+</html>
