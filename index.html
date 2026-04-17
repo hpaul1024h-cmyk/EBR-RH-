@@ -448,7 +448,7 @@ function saveTok(){const t=document.getElementById('tok-in').value.trim();if(!t)
 // 저장 비번
 function initSave(){if(!S.user){toast('먼저 로그인하세요.');return;}document.getElementById('spw-mod').classList.remove('hidden');document.getElementById('spw-in').value='';document.getElementById('spw-er').style.display='none';setTimeout(()=>document.getElementById('spw-in').focus(),100);}
 function closeSpw(){document.getElementById('spw-mod').classList.add('hidden');}
-function chkSpw(){const pw=document.getElementById('spw-in').value;if(pw!==SAVE_PW){document.getElementById('spw-er').style.display='block';document.getElementById('spw-in').value='';return;}closeSpw();if(!getTok()){showTok(()=>doSave());return;}doSave();}
+function chkSpw(){const pw=document.getElementById('spw-in').value;if(pw!==SAVE_PW){document.getElementById('spw-er').style.display='block';document.getElementById('spw-in').value='';return;}closeSpw();if(!getTok()&&!SHARED_TOKEN){showTok(()=>doSave());return;}doSave();}
 
 // GitHub
 async function loadGH(){
