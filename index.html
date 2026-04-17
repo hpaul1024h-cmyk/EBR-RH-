@@ -124,6 +124,49 @@ header{background:var(--navy);height:52px;display:flex;align-items:center;justif
 </head>
 <body>
 
+<!-- 불러오기 모달 -->
+<div class="ov hidden" id="load-modal">
+  <div class="mo">
+    <h2>&#128228; 데이터 불러오기</h2>
+    <p>SharePoint에서 다운로드한 <b>data.json</b> 파일을 선택하세요.</p>
+    <div class="fg" style="background:#e8f3fb;border-radius:8px;padding:1rem;margin-bottom:1rem">
+      <div style="font-size:12px;color:var(--bl);font-weight:600;margin-bottom:.4rem">&#128204; SharePoint에서 파일 가져오는 방법</div>
+      <div style="font-size:11px;color:var(--t2);line-height:1.8">
+        1. SharePoint 폴더 접속<br>
+        2. <b>data.json</b> 파일 다운로드<br>
+        3. 아래 버튼으로 파일 선택
+      </div>
+    </div>
+    <div class="fg">
+      <label>data.json 파일 선택</label>
+      <input type="file" accept=".json" onchange="loadFromFile(this)" style="padding:8px">
+    </div>
+    <div class="mb">
+      <button class="btn" onclick="document.getElementById('load-modal').classList.add('hidden')">취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- SharePoint 업로드 안내 모달 -->
+<div class="ov hidden" id="sp-guide-modal">
+  <div class="mo">
+    <h2>&#9989; data.json 다운로드 완료!</h2>
+    <p>다운로드된 파일을 SharePoint에 업로드해주세요.</p>
+    <div style="background:#e8f5e8;border-radius:8px;padding:1rem;margin-bottom:1rem">
+      <div style="font-size:12px;color:var(--gd);font-weight:600;margin-bottom:.4rem">&#128204; SharePoint 업로드 방법</div>
+      <div style="font-size:11px;color:var(--t2);line-height:1.9">
+        1. SharePoint 폴더 접속<br>
+        2. 기존 <b>data.json</b> 선택 → 삭제 또는 덮어쓰기<br>
+        3. 방금 다운로드된 <b>data.json</b> 업로드<br>
+        4. 완료! 팀원들이 불러오기로 최신 데이터 확인 가능
+      </div>
+    </div>
+    <div class="mb">
+      <button class="btn bp" onclick="document.getElementById('sp-guide-modal').classList.add('hidden')">확인</button>
+    </div>
+  </div>
+</div>
+
 <!-- 토큰 모달 -->
 <div class="ov hidden" id="tok-mod">
   <div class="mo">
@@ -212,7 +255,8 @@ header{background:var(--navy);height:52px;display:flex;align-items:center;justif
     <button class="hb hidden" id="btn-au" onclick="showPw()">작성자 로그인</button>
     <button class="hb hidden" id="btn-lo" onclick="logout()">로그아웃</button>
     <button class="hb" onclick="goMain()">메인화면</button>
-    <button class="hb" onclick="initSave()">저장</button>
+    <button class="hb" onclick="document.getElementById('load-modal').classList.remove('hidden')">&#128228; 불러오기</button>
+    <button class="hb" onclick="initSave()">&#128190; 저장</button>
   </div>
 </header>
 
@@ -451,30 +495,39 @@ function closeSpw(){document.getElementById('spw-mod').classList.add('hidden');}
 function chkSpw(){const pw=document.getElementById('spw-in').value;if(pw!==SAVE_PW){document.getElementById('spw-er').style.display='block';document.getElementById('spw-in').value='';return;}closeSpw();if(!getTok()&&!SHARED_TOKEN){showTok(()=>doSave());return;}doSave();}
 
 // GitHub
-async function loadGH(){
-  chp('sin','불러오는 중...');
-  try{
-    const url=`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`;
-    const hd={'Accept':'application/vnd.github.v3+json'};const tok=getTok()||SHARED_TOKEN;if(tok) hd['Authorization']=`token ${tok}`;
-    const res=await fetch(url,{headers:hd});
-    if(res.status===404){S=initS(null);chp('sok','새 파일');toast('새 데이터로 시작합니다.');}
-    else if(res.ok){const j=await res.json();ghSHA=j.sha;const raw=atob(j.content.replace(/\n/g,''));const decoded=new TextDecoder('utf-8').decode(new Uint8Array([...raw].map(c=>c.charCodeAt(0))));S=initS(JSON.parse(decoded));chp('sok',S.ls||'로드완료');if(S.lsb) toast(`마지막 저장: ${S.lsb} (${S.ls})`);}
-    else throw new Error(res.status);
-  }catch(ex){S=initS(null);chp('ser','오프라인');toast('GitHub 연결 실패 — 오프라인 모드',3000);}
+function loadGH(){
+  S=initS(null);
+  chp('sok','로컬 모드');
   renderMain();applyMode();
 }
-async function doSave(){
-  chp('sin','저장 중...');S.ls=iso();S.lsb=S.user;
-  const jsonStr=JSON.stringify(S,null,2);const bytes=new TextEncoder().encode(jsonStr);const content=btoa(Array.from(bytes).map(b=>String.fromCharCode(b)).join(""));
-  const body={message:`update: ${S.user} @ ${S.ls}`,content,branch:GH_BRANCH};if(ghSHA) body.sha=ghSHA;
-  try{
-    const res=await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`,
-      {method:'PUT',headers:{'Authorization':`token ${getTok()||SHARED_TOKEN}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
-    if(res.ok){const j=await res.json();ghSHA=j.content.sha;chp('sok',S.ls);toast(`저장 완료 (${S.lsb})`);}
-    else if(res.status===401){setTok('');if(getTok()||SHARED_TOKEN){toast('토큰 오류. 다시 입력하세요.',3000);showTok(()=>doSave());}else{toast('토큰 오류.',3000);}}
-    else if(res.status===409){toast('충돌: 새로고침 후 다시 시도하세요.',4000);chp('ser','충돌');}
-    else{const ex=await res.json();throw new Error(ex.message);}
-  }catch(ex){chp('ser','저장실패');toast('저장 실패: '+ex.message,3000);}
+function loadFromFile(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const parsed=JSON.parse(e.target.result);
+      S=initS(parsed);
+      chp('sok',S.ls||'불러오기 완료');
+      if(S.lsb) toast(`마지막 저장: ${S.lsb} (${S.ls})`);
+      renderMain();applyMode();
+      document.getElementById('load-modal').classList.add('hidden');
+      toast('데이터 불러오기 완료!');
+    }catch(ex){toast('파일 오류: data.json 파일인지 확인하세요.',3000);}
+  };
+  reader.readAsText(file,'utf-8');
+}
+function doSave(){
+  S.ls=iso();S.lsb=S.user;
+  const jsonStr=JSON.stringify(S,null,2);
+  const blob=new Blob([jsonStr],{type:'application/json;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='data.json';
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},200);
+  chp('sok',S.ls);
+  toast('data.json 다운로드 완료! SharePoint 폴더에 업로드해주세요.',4000);
+  document.getElementById('sp-guide-modal').classList.remove('hidden');
 }
 
 // 모드/인증
