@@ -367,6 +367,7 @@ header{background:var(--navy);height:52px;display:flex;align-items:center;justif
 
 <script>
 const GH_OWNER='hpaul1024h-cmyk',GH_REPO='EBR-RH-',GH_BRANCH='main',GH_FILE='data.json';
+const SHARED_TOKEN='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';
 const AUTHOR_PW='dss1234',SAVE_PW='ebr2026!';
 
 function getTok(){return localStorage.getItem('ebr_tok')||'';}
@@ -454,7 +455,7 @@ async function loadGH(){
   chp('sin','불러오는 중...');
   try{
     const url=`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`;
-    const hd={'Accept':'application/vnd.github.v3+json'};const tok=getTok();if(tok) hd['Authorization']=`token ${tok}`;
+    const hd={'Accept':'application/vnd.github.v3+json'};const tok=getTok()||SHARED_TOKEN;if(tok) hd['Authorization']=`token ${tok}`;
     const res=await fetch(url,{headers:hd});
     if(res.status===404){S=initS(null);chp('sok','새 파일');toast('새 데이터로 시작합니다.');}
     else if(res.ok){const j=await res.json();ghSHA=j.sha;const raw=atob(j.content.replace(/\n/g,''));const decoded=new TextDecoder('utf-8').decode(new Uint8Array([...raw].map(c=>c.charCodeAt(0))));S=initS(JSON.parse(decoded));chp('sok',S.ls||'로드완료');if(S.lsb) toast(`마지막 저장: ${S.lsb} (${S.ls})`);}
@@ -468,9 +469,9 @@ async function doSave(){
   const body={message:`update: ${S.user} @ ${S.ls}`,content,branch:GH_BRANCH};if(ghSHA) body.sha=ghSHA;
   try{
     const res=await fetch(`https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FILE}`,
-      {method:'PUT',headers:{'Authorization':`token ${getTok()}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
+      {method:'PUT',headers:{'Authorization':`token ${getTok()||SHARED_TOKEN}`,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},body:JSON.stringify(body)});
     if(res.ok){const j=await res.json();ghSHA=j.content.sha;chp('sok',S.ls);toast(`저장 완료 (${S.lsb})`);}
-    else if(res.status===401){setTok('');toast('토큰 오류. 다시 입력하세요.',3000);showTok(()=>doSave());}
+    else if(res.status===401){setTok('');if(getTok()||SHARED_TOKEN){toast('토큰 오류. 다시 입력하세요.',3000);showTok(()=>doSave());}else{toast('토큰 오류.',3000);}}
     else if(res.status===409){toast('충돌: 새로고침 후 다시 시도하세요.',4000);chp('ser','충돌');}
     else{const ex=await res.json();throw new Error(ex.message);}
   }catch(ex){chp('ser','저장실패');toast('저장 실패: '+ex.message,3000);}
